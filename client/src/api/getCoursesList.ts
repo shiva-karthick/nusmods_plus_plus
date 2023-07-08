@@ -1,4 +1,4 @@
-// https://timetable.csesoc.unsw.edu.au/api/terms/2022-T1/courses/
+// https://api.nusmods.com/v2/
 
 import { CoursesList, CoursesListWithDate, FetchedCourse } from '../interfaces/Courses';
 import { API_URL } from './config';
@@ -7,11 +7,11 @@ import timeoutPromise from '../utils/timeoutPromise';
 
 const toCoursesList = (data: FetchedCourse[]): CoursesList =>
   data.map((course) => ({
-    code: course.courseCode,
-    name: course.name,
-    online: course.online,
-    inPerson: course.inPerson,
-    career: course.career,
+    code: course.moduleCode,
+    name: course.title,
+    online: false,
+    inPerson: false,
+    career: "UGRD/PGRD",
   }));
 
 /**
@@ -28,17 +28,21 @@ const toCoursesList = (data: FetchedCourse[]): CoursesList =>
  * const coursesList = await getCoursesList('2020', 'T1')
  */
 const getCoursesList = async (year: string, term: string): Promise<CoursesListWithDate> => {
-  const baseURL = `${API_URL.timetable}/terms/${year}-${term}`;
+  const baseURL = `https://api.nusmods.com/v2/`;
   try {
-    const data = await timeoutPromise(1000, fetch(`${baseURL}/courses/`));
+    const acadYear:string = "2023-2024"
+    const data = await timeoutPromise(1000, fetch(`${baseURL}/${acadYear}/moduleInfo.json`));
     const json = await data.json();
     if (data.status === 400) {
       throw new NetworkError('Internal server error');
     }
 
+    // parse the json here
+    // console.log(json[10000].title);
+
     return {
-      lastUpdated: json.lastUpdated,
-      courses: toCoursesList(json.courses),
+      lastUpdated: 2023,
+      courses: toCoursesList(json),
     };
   } catch (error) {
     throw new NetworkError('Could not connect to server');

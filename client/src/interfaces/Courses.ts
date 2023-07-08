@@ -1,12 +1,15 @@
 import { CourseCode } from './Periods';
 
-export type CoursesList = CourseOverview[];
+export type CoursesList = CourseOverview[]; // list of CoursesList
+
+// what exactly is an interface?
+// An interface is a syntactical contract that an entity should conform to. In other words, an interface defines the syntax that any entity must adhere to.
 export interface CourseOverview {
   code: string;
   name: string;
   online: boolean;
   inPerson: boolean;
-  career: string;
+  career: string; // whether the course is for undergraduates or graduates
 }
 
 export interface CoursesListWithDate {
@@ -15,8 +18,8 @@ export interface CoursesListWithDate {
 }
 
 export interface FetchedCourse {
-  courseCode: CourseCode; // type CourseCode = string
-  name: string;
+  moduleCode: string; // type CourseCode = string
+  title: string;
   online: boolean;
   inPerson: boolean;
   career: string;

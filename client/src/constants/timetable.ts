@@ -21,6 +21,7 @@ export const getAvailableTermDetails = async () => {
   if (localStorage.getItem('termData')) {
     termData = JSON.parse(localStorage.getItem('termData')!);
   }
+
   let year = termData.year || '0000';
   let termNumber = Number(termData.termNumber) || 1;
   let term = termData.termName || `T${termNumber}`;
@@ -28,32 +29,38 @@ export const getAvailableTermDetails = async () => {
   let firstDayOfTerm = termData.firstDayOfTerm || `0000-00-00`;
 
   try {
-    const termDateFetch = await timeoutPromise(1000, fetch(`${API_URL.timetable}/startdate/notangles`));
-    const termDateRes = await termDateFetch.text();
-    const termIdFetch = await timeoutPromise(1000, fetch(`${API_URL.timetable}/availableterm`));
+    // const termDateFetch = await timeoutPromise(1000, fetch(`${API_URL.timetable}/startdate/notangles`));
+    // const termDateRes = await termDateFetch.text();
+    // const termIdFetch = await timeoutPromise(1000, fetch(`${API_URL.timetable}/availableterm`));
 
-    let regexp = /(\d{2})\/(\d{2})\/(\d{4})/;
+    // let regexp = /(\d{2})\/(\d{2})\/(\d{4})/;
 
-    let matched = termDateRes.match(regexp);
-    if (matched != null) {
-      year = matched[3];
-    }
+    // let matched = termDateRes.match(regexp);
+    // if (matched != null) {
+    //   year = matched[3];
+    // }
 
-    const termDateSplit = termDateRes.split('/');
-    firstDayOfTerm = termDateSplit.reverse().join('-');
+    // const termDateSplit = termDateRes.split('/');
+    // firstDayOfTerm = termDateSplit.reverse().join('-');
 
-    const termIdRes = await termIdFetch.text();
-    if (termIdRes.length === REGULAR_TERM_STR_LEN) {
-      // This is not a summer term.
-      termNumber = parseInt(termIdRes.substring(1));
-      term = `T${termNumber}`;
-      termName = `Term ${termNumber}`;
-    } else {
-      // This is a summer term.
-      termName = `Summer Term`;
-      term = termIdRes;
-      termNumber = 0; // This is a summer term.
-    }
+    // const termIdRes = await termIdFetch.text();
+    // if (termIdRes.length === REGULAR_TERM_STR_LEN) {
+    //   // This is not a summer term.
+    //   termNumber = parseInt(termIdRes.substring(1));
+    //   term = `T${termNumber}`;
+    //   termName = `Term ${termNumber}`;
+    // } else {
+    //   // This is a summer term.
+    //   termName = `Summer Term`;
+    //   term = termIdRes;
+    //   termNumber = 0; // This is a summer term.
+    // }
+    year = "2023-2024"
+    term = "T1"
+    termNumber = 1
+    termName = "Term 1"
+    firstDayOfTerm = "2023-03-06"
+
     // Store the term details in local storage.
     localStorage.setItem(
       'termData',
