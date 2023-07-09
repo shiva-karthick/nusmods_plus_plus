@@ -12,6 +12,12 @@ import { API_URL } from './config';
  *
  * @param dbClassWeeks The weeks a class is running
  * @param dbClassTimesList The output array
+ * 
+ * @return The output array -> [1, 2, 3, 4, 5, 7, 8, 9, 10]
+ * 
+ * @possible_error Given the above example "1-5,7-10", it does print out the correct output array, 
+ * but also repeats the output array a number of times. 
+ * Check out here : https://codesandbox.io/s/typescript-playground-export-forked-38s6wr?file=/index.ts
  */
 const convertTimesToList = (dbClassWeeks: string, dbClassTimesList: number[]) => {
   for (let k = 0; k < dbClassWeeks.length; k++) {
@@ -19,7 +25,7 @@ const convertTimesToList = (dbClassWeeks: string, dbClassTimesList: number[]) =>
     times.map((time) => {
       if (time.includes('-')) {
         // Convert ranges into numbers
-        let [min, max] = time.split('-');
+        let [min, max] = time.split('-'); // this is destructuring the data
         for (let j = parseInt(min); j < parseInt(max); j++) {
           dbClassTimesList.push(j);
         }
@@ -35,6 +41,8 @@ const convertTimesToList = (dbClassWeeks: string, dbClassTimesList: number[]) =>
  * @param dbClassTimesOne The first class
  * @param dbClassTimesTwo The second class
  * @returns If the two classes are equivalent
+ * 
+ * @todo change == into === because == is not recommended, and === is more strict
  */
 const classesAreEqual = (dbClassTimesOne: DbTimes, dbClassTimesTwo: DbTimes): boolean => {
   return (
@@ -81,12 +89,13 @@ const sortUnique = (arr: number[]): number[] => {
 const getCourseInfo = async (
   year: string,
   term: string,
-  courseCode: CourseCode,
+  courseCode: CourseCode, //string
   isConvertToLocalTimezone: boolean
 ): Promise<CourseData> => {
-  const baseURL = `${API_URL.timetable}/terms/${year}-${term}`;
+  // const baseURL = `${API_URL.timetable}/terms/${year}-${term}`; // will keep here for now
+  const baseURL = `https://api.nusmods.com/v2/2023-2024/modules` // I will hardcode the year and term for now
   try {
-    const data = await timeoutPromise(1000, fetch(`${baseURL}/courses/${courseCode}/`));
+    const data = await timeoutPromise(1000, fetch(`${baseURL}/${courseCode}.json`));
 
     // Remove any leftover courses from localStorage if they are not offered in the current term
     // which is why a 400 error is returned
@@ -100,64 +109,70 @@ const getCourseInfo = async (
       }
     }
 
-    const json: DbCourse = await data.json();
-    json.classes.forEach((dbClass) => {
-      // Some courses split up a single class into two separate classes. e.g. CHEM1011 does it (as of 22T3)
-      // because one half of the course is taught by one lecturer and the other half is taught by another.
-      // This causes two cards to be generated for the same class which is not ideal, thus the following code
-      // consolidates the separate classes into one class.
+    const json: any = await data.json();
 
-      for (let i = 0; i < dbClass.times.length - 1; i += 1) {
-        for (let j = i + 1; j < dbClass.times.length; j += 1) {
-          let dbClassTimesOne = dbClass.times[i];
-          let dbClassTimesTwo = dbClass.times[j];
+    console.log(json);
 
-          if (classesAreEqual(dbClassTimesOne, dbClassTimesTwo)) {
-            let dbClassTimesList: number[] = [];
+    // work on new code
 
-            convertTimesToList(dbClassTimesOne.weeks, dbClassTimesList);
-            convertTimesToList(dbClassTimesTwo.weeks, dbClassTimesList);
+    // OLD CODE
+    // json.classes.forEach((dbClass) => {
+    //   // Some courses split up a single class into two separate classes. e.g. CHEM1011 does it (as of 22T3)
+    //   // because one half of the course is taught by one lecturer and the other half is taught by another.
+    //   // This causes two cards to be generated for the same class which is not ideal, thus the following code
+    //   // consolidates the separate classes into one class.
 
-            dbClassTimesList = sortUnique(dbClassTimesList);
+    //   for (let i = 0; i < dbClass.times.length - 1; i += 1) {
+    //     for (let j = i + 1; j < dbClass.times.length; j += 1) {
+    //       let dbClassTimesOne = dbClass.times[i];
+    //       let dbClassTimesTwo = dbClass.times[j];
 
-            let newWeeks: string = '';
-            let isEndOfRange = false;
+    //       if (classesAreEqual(dbClassTimesOne, dbClassTimesTwo)) {
+    //         let dbClassTimesList: number[] = [];
 
-            // Convert the numerical representation of the weeks the classes are running back to a string
-            for (let k = 0; k < dbClassTimesList.length; k++) {
-              if (k == 0 || k == dbClassTimesList.length - 1) {
-                newWeeks += dbClassTimesList[k];
-              } else if (isEndOfRange) {
-                // Add the start of the range
-                newWeeks += dbClassTimesList[k];
-                isEndOfRange = false;
-              }
+    //         convertTimesToList(dbClassTimesOne.weeks, dbClassTimesList);
+    //         convertTimesToList(dbClassTimesTwo.weeks, dbClassTimesList);
 
-              while (dbClassTimesList[k + 1] == dbClassTimesList[k] + 1) {
-                // Keep iterating until you reach the end of the range (numbers stop being consecutive)
-                k++;
-              }
+    //         dbClassTimesList = sortUnique(dbClassTimesList);
 
-              if (!isEndOfRange) {
-                // Add the end of the range (last consecutive number)
-                newWeeks += '-' + dbClassTimesList[k];
+    //         let newWeeks: string = '';
+    //         let isEndOfRange = false;
 
-                // If this isn't the last week, we will need to add more weeks
-                if (k !== dbClassTimesList.length - 1) {
-                  newWeeks += ',';
-                }
+    //         // Convert the numerical representation of the weeks the classes are running back to a string
+    //         for (let k = 0; k < dbClassTimesList.length; k++) {
+    //           if (k == 0 || k == dbClassTimesList.length - 1) {
+    //             newWeeks += dbClassTimesList[k];
+    //           } else if (isEndOfRange) {
+    //             // Add the start of the range
+    //             newWeeks += dbClassTimesList[k];
+    //             isEndOfRange = false;
+    //           }
 
-                // Get ready to add the end of the range
-                isEndOfRange = true;
-              }
-            }
+    //           while (dbClassTimesList[k + 1] == dbClassTimesList[k] + 1) {
+    //             // Keep iterating until you reach the end of the range (numbers stop being consecutive)
+    //             k++;
+    //           }
 
-            dbClassTimesOne.weeks = newWeeks;
-            dbClass.times.splice(dbClass.times.indexOf(dbClassTimesTwo), 1);
-          }
-        }
-      }
-    });
+    //           if (!isEndOfRange) {
+    //             // Add the end of the range (last consecutive number)
+    //             newWeeks += '-' + dbClassTimesList[k];
+
+    //             // If this isn't the last week, we will need to add more weeks
+    //             if (k !== dbClassTimesList.length - 1) {
+    //               newWeeks += ',';
+    //             }
+
+    //             // Get ready to add the end of the range
+    //             isEndOfRange = true;
+    //           }
+    //         }
+
+    //         dbClassTimesOne.weeks = newWeeks;
+    //         dbClass.times.splice(dbClass.times.indexOf(dbClassTimesTwo), 1);
+    //       }
+    //     }
+    //   }
+    // });
 
     if (!json) throw new NetworkError('Internal server error');
 

@@ -1,17 +1,17 @@
 import { Activity, CourseCode, Section, Status } from './Periods';
 
 export interface DbCourse {
-  courseCode: CourseCode;
+  courseCode: CourseCode; // string
   name: string;
   classes: DbClass[];
 }
 
 export interface DbClass {
-  activity: Activity;
-  times: DbTimes[];
-  status: Status;
-  courseEnrolment: DbCourseEnrolment;
-  section: Section;
+  activity: Activity; // string
+  times: DbTimes[]; // array of DbTimes
+  status: Status; // 'Open' | 'Full' | 'On Hold'
+  courseEnrolment: DbCourseEnrolment; // {enrolments, capacity}
+  section: Section; // string
 }
 
 export interface DbCourseEnrolment {
@@ -20,7 +20,7 @@ export interface DbCourseEnrolment {
 }
 
 export interface DbTimes {
-  time: DbTime;
+  time: DbTime; // {start, end}
   day: string;
   location: string;
   weeks: string;
