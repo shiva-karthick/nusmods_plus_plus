@@ -4,7 +4,8 @@ export type InInventory = null;
 export type Section = string;
 export type Location = string;
 export type EventCode = string;
-export type Status = 'Open' | 'Full' | 'On Hold';
+// export type Status = 'Open' | 'Full' | 'On Hold';
+export type Status = string;
 
 export type SelectedClasses = Record<CourseCode, Record<Activity, ClassData | InInventory>>;
 // Explained more beatifully here, {CourseCode : {Activity : ClassData | InInventory}}

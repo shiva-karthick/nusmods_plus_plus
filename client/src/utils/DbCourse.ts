@@ -162,6 +162,7 @@ export const dbCourseToCourseData = (dbCourse: DbCourse, isConvertToLocalTimezon
       periods: [],
       section: dbClass.section,
     };
+    console.log(classData)
 
     classData.periods = dbClass.times.map((dbTime) => dbTimesToPeriod(dbTime, classData, isConvertToLocalTimezone));
 

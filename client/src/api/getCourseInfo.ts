@@ -1,10 +1,10 @@
-import { DbCourse, DbTimes } from '../interfaces/Database';
-import NetworkError from '../interfaces/NetworkError';
-import { CourseCode, CourseData } from '../interfaces/Periods';
-import { dbCourseToCourseData } from '../utils/DbCourse';
-import storage from '../utils/storage';
-import timeoutPromise from '../utils/timeoutPromise';
-import { API_URL } from './config';
+import { DbCourse, DbTimes } from "../interfaces/Database";
+import NetworkError from "../interfaces/NetworkError";
+import { CourseCode, CourseData } from "../interfaces/Periods";
+import { dbCourseToCourseData } from "../utils/DbCourse";
+import storage from "../utils/storage";
+import timeoutPromise from "../utils/timeoutPromise";
+import { API_URL } from "./config";
 
 /**
  * Converts a string representation of what weeks a class runs to an array
@@ -12,20 +12,23 @@ import { API_URL } from './config';
  *
  * @param dbClassWeeks The weeks a class is running
  * @param dbClassTimesList The output array
- * 
+ *
  * @return The output array -> [1, 2, 3, 4, 5, 7, 8, 9, 10]
- * 
- * @possible_error Given the above example "1-5,7-10", it does print out the correct output array, 
- * but also repeats the output array a number of times. 
+ *
+ * @possible_error Given the above example "1-5,7-10", it does print out the correct output array,
+ * but also repeats the output array a number of times.
  * Check out here : https://codesandbox.io/s/typescript-playground-export-forked-38s6wr?file=/index.ts
  */
-const convertTimesToList = (dbClassWeeks: string, dbClassTimesList: number[]) => {
+const convertTimesToList = (
+  dbClassWeeks: string,
+  dbClassTimesList: number[]
+) => {
   for (let k = 0; k < dbClassWeeks.length; k++) {
-    let times = dbClassWeeks.split(',');
+    let times = dbClassWeeks.split(",");
     times.map((time) => {
-      if (time.includes('-')) {
+      if (time.includes("-")) {
         // Convert ranges into numbers
-        let [min, max] = time.split('-'); // this is destructuring the data
+        let [min, max] = time.split("-"); // this is destructuring the data
         for (let j = parseInt(min); j < parseInt(max); j++) {
           dbClassTimesList.push(j);
         }
@@ -41,10 +44,13 @@ const convertTimesToList = (dbClassWeeks: string, dbClassTimesList: number[]) =>
  * @param dbClassTimesOne The first class
  * @param dbClassTimesTwo The second class
  * @returns If the two classes are equivalent
- * 
+ *
  * @todo change == into === because == is not recommended, and === is more strict
  */
-const classesAreEqual = (dbClassTimesOne: DbTimes, dbClassTimesTwo: DbTimes): boolean => {
+const classesAreEqual = (
+  dbClassTimesOne: DbTimes,
+  dbClassTimesTwo: DbTimes
+): boolean => {
   return (
     dbClassTimesOne.day == dbClassTimesTwo.day &&
     dbClassTimesOne.location == dbClassTimesTwo.location &&
@@ -93,27 +99,54 @@ const getCourseInfo = async (
   isConvertToLocalTimezone: boolean
 ): Promise<CourseData> => {
   // const baseURL = `${API_URL.timetable}/terms/${year}-${term}`; // will keep here for now
-  const baseURL = `https://api.nusmods.com/v2/2023-2024/modules` // I will hardcode the year and term for now
+  const baseURL = `https://api.nusmods.com/v2/2023-2024/modules`; // I will hardcode the year and term for now
   try {
-    const data = await timeoutPromise(1000, fetch(`${baseURL}/${courseCode}.json`));
+    const data = await timeoutPromise(
+      1000,
+      fetch(`${baseURL}/${courseCode}.json`)
+    );
 
     // Remove any leftover courses from localStorage if they are not offered in the current term
     // which is why a 400 error is returned
     if (data.status === 400) {
-      const selectedCourses = storage.get('selectedCourses');
+      const selectedCourses = storage.get("selectedCourses");
       if (selectedCourses.includes(courseCode)) {
         delete selectedCourses[courseCode];
-        storage.set('selectedCourses', selectedCourses);
+        storage.set("selectedCourses", selectedCourses);
       } else {
-        throw new NetworkError('Internal server error');
+        throw new NetworkError("Internal server error");
       }
     }
 
-    const json: any = await data.json();
-
-    console.log(json);
+    const json: DbCourse = await data.json();
 
     // work on new code
+    const parsed_json: DbCourse = {
+      courseCode: "EE2211",
+      name: "Machine Learning",
+      classes: [
+        {
+          activity: "Lecture", // string
+          times: [
+            {
+              time: {
+                start: "12:00",
+                end: "14:00",
+              },
+              day: "Tue",
+              location: "Home",
+              weeks: "1-5, 7-10",
+            },
+          ], // array of DbTimes
+          status: "Open", // 'Open' | 'Full' | 'On Hold'
+          courseEnrolment: {
+            enrolments: 100,
+            capacity: 500,
+          }, // {enrolments, capacity}
+          section: "Electrical Engineering", // string
+        },
+      ],
+    };
 
     // OLD CODE
     // json.classes.forEach((dbClass) => {
@@ -174,12 +207,12 @@ const getCourseInfo = async (
     //   }
     // });
 
-    if (!json) throw new NetworkError('Internal server error');
+    if (!json) throw new NetworkError("Internal server error");
 
-    return dbCourseToCourseData(json, isConvertToLocalTimezone);
+    return dbCourseToCourseData(parsed_json, isConvertToLocalTimezone);
   } catch (error) {
     console.log(error);
-    throw new NetworkError('Could not connect to server');
+    throw new NetworkError("Could not connect to server");
   }
 };
 

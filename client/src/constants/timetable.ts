@@ -104,7 +104,7 @@ export const getTimeZoneOffset = (isConvertToLocalTimezone: boolean): number => 
   if (!isConvertToLocalTimezone) return 0;
 
   const localDate = new Date();
-  const sydDate = localDate.toLocaleString('en-UK', { timeZone: 'Australia/Sydney' });
+  const sydDate = localDate.toLocaleString('en-UK', { timeZone: 'Singapore' });
 
   // Get the date and time of the Sydney timezone.
   const [date, time] = sydDate.split(', ');
