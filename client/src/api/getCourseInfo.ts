@@ -145,6 +145,26 @@ const getCourseInfo = async (
           }, // {enrolments, capacity}
           section: "Electrical Engineering", // string
         },
+        {
+          activity: "Lecture", // string
+          times: [
+            {
+              time: {
+                start: "12:00",
+                end: "14:00",
+              },
+              day: "Wed",
+              location: "E4-05",
+              weeks: "1-5, 7-10",
+            },
+          ], // array of DbTimes
+          status: "Open", // 'Open' | 'Full' | 'On Hold'
+          courseEnrolment: {
+            enrolments: 100,
+            capacity: 500,
+          }, // {enrolments, capacity}
+          section: "Electrical Engineering", // string
+        }
       ],
     };
 

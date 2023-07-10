@@ -98,24 +98,24 @@ export const colors: string[] = [
 
 /**
  * @param isConvertToLocalTimezone Boolean for whether to convert to user's local timezone
- * @returns A number which represents the hour offset between Sydney timezone and the user's local timezone.
+ * @returns A number which represents the hour offset between Singapore's timezone and the user's local timezone.
  */
 export const getTimeZoneOffset = (isConvertToLocalTimezone: boolean): number => {
   if (!isConvertToLocalTimezone) return 0;
 
   const localDate = new Date();
-  const sydDate = localDate.toLocaleString('en-UK', { timeZone: 'Singapore' });
+  const sgDate = localDate.toLocaleString('en-UK', { timeZone: 'Singapore' });
 
-  // Get the date and time of the Sydney timezone.
-  const [date, time] = sydDate.split(', ');
+  // Get the date and time of the Singapore timezone.
+  const [date, time] = sgDate.split(', ');
 
-  // Get the specific day, month and year of the Sydney timezone to convert the string
+  // Get the specific day, month and year of the Singapore timezone to convert the string
   // to a YYYY-MM-DD format to be created into a Date object.
   const [day, month, year] = date.split('/');
-  const formattedSydDate = new Date(`${year}-${month}-${day}T${time}`);
+  const formattedSgDate = new Date(`${year}-${month}-${day}T${time}`);
 
   const offset =
-    (formattedSydDate.getHours() * 60 + formattedSydDate.getMinutes() - (localDate.getHours() * 60 + localDate.getMinutes())) /
+    (formattedSgDate.getHours() * 60 + formattedSgDate.getMinutes() - (localDate.getHours() * 60 + localDate.getMinutes())) /
     60;
 
   return offset;
@@ -137,7 +137,7 @@ export const getLocalTime = (isConvertToLocalTimezone: boolean, time: number): n
 
 /**
  * @param isConvertToLocalTimezone Whether to convert the start time to the user's local timezone
- * @returns The default start time of the timetable (9am Sydney time)
+ * @returns The default start time of the timetable (9am Singapore time)
  */
 export const getDefaultStartTime = (isConvertToLocalTimezone: boolean): number => {
   return getLocalTime(isConvertToLocalTimezone, 9);
@@ -145,7 +145,7 @@ export const getDefaultStartTime = (isConvertToLocalTimezone: boolean): number =
 
 /**
  * @param isConvertToLocalTimezone Whether to convert the end time to the user's local timezone
- * @returns The default end time of the timetable (6pm Sydney time)
+ * @returns The default end time of the timetable (6pm Singapore time)
  */
 export const getDefaultEndTime = (isConvertToLocalTimezone: boolean): number => {
   return getLocalTime(isConvertToLocalTimezone, 18);

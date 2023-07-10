@@ -9,6 +9,7 @@ import { getAllPeriods } from './getAllPeriods';
 /**
  * @param location The location of the class
  * @returns The location without its room code (only the actual name of the room)
+ * @todo dubious function, need to deprecate it
  */
 const locationShorten = (location: string): string => (location ? location.split(' (')[0] : '');
 
@@ -78,6 +79,8 @@ const convertToLocalDayTime = (day: number, start: number, end: number, isConver
  * An adapter that formats a DBTimes object to a Period object
  *
  * @param dbTimes A DBTimes object
+ * @param classData A ClassData object
+ * @param isConvertToLocalTimezone A boolean value (true or false)
  * @return A Period object which is converted from the DBTimes object
  *
  * @example
@@ -85,9 +88,9 @@ const convertToLocalDayTime = (day: number, start: number, end: number, isConver
  */
 const dbTimesToPeriod = (dbTimes: DbTimes, classData: ClassData, isConvertToLocalTimezone: boolean): ClassPeriod => {
   // Get the day, start and end time of the class.
-  let day = weekdayToNumber(dbTimes.day);
-  let start = timeToNumber(dbTimes.time.start);
-  let end = timeToNumber(dbTimes.time.end);
+  let day = weekdayToNumber(dbTimes.day); // Mon, Tue, Wed, Thu, Fri, Sat, Sun
+  let start = timeToNumber(dbTimes.time.start); // the format is 12:00 and 24-hour format
+  let end = timeToNumber(dbTimes.time.end); // the format is 12:00 and 24-hour format
 
   // Convert to local day time.
   [day, start, end] = convertToLocalDayTime(day, start, end, isConvertToLocalTimezone);
@@ -133,6 +136,7 @@ const dbTimesToPeriod = (dbTimes: DbTimes, classData: ClassData, isConvertToLoca
  * An adapter that formats a DBCourse object to a CourseData object
  *
  * @param dbCourse A DBCourse object
+ * @param isConvertToLocalTimezone A boolean value (true or false)
  * @return A CourseData object
  *
  * @example
@@ -162,7 +166,7 @@ export const dbCourseToCourseData = (dbCourse: DbCourse, isConvertToLocalTimezon
       periods: [],
       section: dbClass.section,
     };
-    console.log(classData)
+    // console.log(classData) // used for debugging
 
     classData.periods = dbClass.times.map((dbTime) => dbTimesToPeriod(dbTime, classData, isConvertToLocalTimezone));
 
