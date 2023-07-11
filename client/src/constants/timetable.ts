@@ -156,7 +156,8 @@ export const rowHeight = 60;
 export const classMargin = 1;
 export const headerPadding = 10;
 
-export const maxAddedCourses = 8;
+// https://wiki.nus.edu.sg/display/eng/Workload+and+Other+Policies
+export const maxAddedCourses = 20; // seriously, who takes 20 modules in a semester? bruh HAHAHAHAHA
 
 export const daysLong = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
 export const daysShort = ['Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa', 'Su'];
