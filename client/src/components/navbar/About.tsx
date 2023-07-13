@@ -40,7 +40,7 @@ const About: React.FC = () => {
           Crossangles
         </Link>
         , it was created by CSESoc Projects – a place for student-led projects where you can learn something new, and make some
-        friends along the way. Notangles is free and <Link href="https://github.com/csesoc/notangles">open-source</Link>.
+        friends along the way. nusmods++ is free and <Link href="https:">open-source</Link>.
       </Typography> */}
       <StyledTypography variant="h6">How it works</StyledTypography>
       <Typography gutterBottom variant="body2">
@@ -85,7 +85,7 @@ const About: React.FC = () => {
       </FeatList> */}
       {/* <StyledTypography variant="h6">Disclaimer</StyledTypography>
       <Typography gutterBottom variant="body2">
-        While we try our best, Notangles is not an official UNSW site, and cannot guarantee data accuracy or reliability.
+        While we try our best, nusmods++ is not an official UNSW site, and cannot guarantee data accuracy or reliability.
       </Typography>
       <Typography gutterBottom variant="body2">
         If you find an issue or have a suggestion, please{' '}
