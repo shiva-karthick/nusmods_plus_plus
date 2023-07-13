@@ -1,21 +1,30 @@
-Thought process
-- What functions to write and send to React frontend?
+# Notangles Server
 
+The Notangles server allows the client to communicate with the autotimetabling server.
 
-## Running the backend
-```bash
-# Works only in linux and macos terminals
-export FLASK_APP=server
-export FLASK_DEBUG=1
-flask run
-```
+## Installation
 
-## Running the frontend (React)
-Navigate into nusmods++/client, then run one of the follow commands:
+The server has been verified to work with:
 
-- npm start (if you already have the server running locally; connects to that)
- 
-- npm run start:mock (if you don’t have the server running locally; connects to the real server)
+- npm v8.3.1
+- node v16.14.0
 
-You can then access the client at localhost:3000 in your favourite web browser.
+In the root server directory `server`, run `npm install` to install all the dependencies.
 
+## Running
+
+Run `npm start` to start the server locally. The server will be hosted at http://localhost:3001.
+
+## Tech Stack
+
+The Notangles server uses:
+
+- [MongoDB](https://www.mongodb.com/)
+- [TypeScript](https://www.typescriptlang.org/)
+- [Express](https://expressjs.com/)
+
+## API endpoints
+
+### `POST /auto`
+
+Returns a list of ints that correspond to class times for the inputted data
