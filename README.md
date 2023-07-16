@@ -9,6 +9,8 @@ Creating a timtable for every semester for every round is very mentally draining
 
 ![User Interface](images/image-1.png)
 
+![Auto-timetabler](images/autotimetable.gif)
+
 ## Running in local machine
 ### Server
 
