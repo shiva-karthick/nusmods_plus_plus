@@ -39,8 +39,7 @@ const About: React.FC = () => {
         <Link href="https://crossangles.app/" target="_blank">
           Crossangles
         </Link>
-        , it was created by CSESoc Projects – a place for student-led projects where you can learn something new, and make some
-        friends along the way. nusmods++ is free and <Link href="https:">open-source</Link>.
+        , it was created by Shiva for Orbital 2023. nusmods++ is free and <Link href="https:">open-source</Link>.
       </Typography> */}
       <StyledTypography variant="h6">How it works</StyledTypography>
       <Typography gutterBottom variant="body2">
