@@ -18,6 +18,8 @@ MAX_TIME = 5 * DAY_MULT + 24 * TIME_MULT
 # A duration in hours that lets the end time interval fill the rest of the day
 SUITABLE_END_TIME_BUFFER = 26
 
+
+# A helper function to check if a class has consecutive periods, which is useful for merging tut-labs into a single period
 def hasConsecutivePeriods(periodsPerClass, periodTimes):
     """
     Parameters:
@@ -28,7 +30,9 @@ def hasConsecutivePeriods(periodsPerClass, periodTimes):
     Returns:
         bool: Whether a class has consecutively occurring periods in a single day (e.g. tut-labs)
     """
-    return periodsPerClass == 2 and all(periodTimes[i] == periodTimes[i + 2] for i in range(0, len(periodTimes) - 4, 4))
+    return periodsPerClass == 2 and all(
+        periodTimes[i] == periodTimes[i + 2] for i in range(0, len(periodTimes) - 4, 4)
+    )
 
 
 def reducePeriodInfo(period):
@@ -61,7 +65,10 @@ def reducePeriodInfo(period):
     if periodsPerClass == 1:
         return (
             int(durations[0] * TIME_MULT),
-            [int(periodTimes[i] * DAY_MULT + periodTimes[i + 1] * TIME_MULT) for i in range(0, len(periodTimes), 2)],
+            [
+                int(periodTimes[i] * DAY_MULT + periodTimes[i + 1] * TIME_MULT)
+                for i in range(0, len(periodTimes), 2)
+            ],
             False,
         )
 
@@ -69,7 +76,10 @@ def reducePeriodInfo(period):
     if hasConsecutivePeriods(periodsPerClass, periodTimes) and period:
         return (
             int((durations[0] + durations[1]) * TIME_MULT),
-            [int(periodTimes[i] * DAY_MULT + periodTimes[i + 1] * TIME_MULT) for i in range(0, len(periodTimes), 4)],
+            [
+                int(periodTimes[i] * DAY_MULT + periodTimes[i + 1] * TIME_MULT)
+                for i in range(0, len(periodTimes), 4)
+            ],
             False,
         )
 
@@ -92,6 +102,14 @@ def reducePeriodInfo(period):
 
 def sols(requestData):
     """Runs a CP Solver to generate a possible solution given the requested data.
+    The main steps for setting up and solving a problem are,
+    1. Import the required libraries,
+    2. Declare the solver,
+    3. Create the variables,
+    4. Define the constraints,
+    5. Define the objective function,
+    6. Invoke the solver and
+    7. Display the results.
 
     Args:
         requestData ([start, end, days, gap, maxdays, periodInfo[periodsPerClass, periodTimes[], durations[]]): the given data
@@ -101,26 +119,34 @@ def sols(requestData):
         boolean: optimality
     """
     # Initialise constraint model
-    model = cp_model.CpModel()
+    model = cp_model.CpModel()  # The following code creates the model.
 
     # Get user preferences
     minGapBetw, earliestStartTime, latestEndTime, days = (
-        requestData.gap * TIME_MULT,
-        requestData.start * TIME_MULT,
-        requestData.end * TIME_MULT,
-        requestData.days,
+        requestData.gap * TIME_MULT,  # Minimum gap between classes
+        requestData.start * TIME_MULT,  # Earliest possible start time
+        requestData.end * TIME_MULT,  # Latest possible end time
+        requestData.days,  # Days of the week the user wants classes on
     )
-    maxDays = min(requestData.maxdays, len(days))
 
-    newPeriodData = [reducePeriodInfo(l) for l in requestData.periodInfo]
-    numCourses = len(newPeriodData)
+    maxDays = min(
+        requestData.maxdays, len(days)
+    )  # Maximum number of days the user wants classes on
+
+    newPeriodData = [
+        reducePeriodInfo(l) for l in requestData.periodInfo
+    ]  # Reduce the period info into nicer data to work with
+    numCourses = len(newPeriodData)  # Number of courses
 
     # Indices of classes which were reduced to single-period classes
     normalClassIndices = [i for i in range(numCourses) if not newPeriodData[i][2]]
 
     # Create integer variables to represent the possible values for each class's start times
     classStartTimes = [
-        model.NewIntVarFromDomain(cp_model.Domain.FromValues(newPeriodData[i][1]), f"x{i}") for i in normalClassIndices
+        model.NewIntVarFromDomain(
+            cp_model.Domain.FromValues(newPeriodData[i][1]), f"x{i}"
+        )
+        for i in normalClassIndices
     ]
 
     # Create interval variables to constrain the total length of a class to always be equal to
@@ -156,12 +182,17 @@ def sols(requestData):
         # Choose some (in our case one) of the grouped periods to add
         for i in range(len(specialPeriods)):
             for j in range(len(groupStartTimes)):
-                model.Add(groupStartTimes[j] == specialPeriods[i][j]).OnlyEnforceIf(specialBools[i])
+                model.Add(groupStartTimes[j] == specialPeriods[i][j]).OnlyEnforceIf(
+                    specialBools[i]
+                )
 
         # This is similar to classIntervals but for special classes
         # Add an interval for all classes in the group
         specialClassIntervals += [
-            model.NewFixedSizeIntervalVar(groupStartTimes[j], durations[j] + minGapBetw, f"sI{j}") for j in range(len(groupStartTimes))
+            model.NewFixedSizeIntervalVar(
+                groupStartTimes[j], durations[j] + minGapBetw, f"sI{j}"
+            )
+            for j in range(len(groupStartTimes))
         ]
 
         # This ensures a single assignment of grouped periods
@@ -194,7 +225,9 @@ def sols(requestData):
 
         # Create a block of time from the start of each day to the earliest start time to satisfy that constraint
         laterThanArr.append(
-            model.NewOptionalFixedSizeIntervalVar(i * DAY_MULT, earliestStartTime, newBools[0], f"l{i}")
+            model.NewOptionalFixedSizeIntervalVar(
+                i * DAY_MULT, earliestStartTime, newBools[0], f"l{i}"
+            )
         )
 
         # Create a block of time to satisfy the latest end time constraint
@@ -227,8 +260,12 @@ def sols(requestData):
             constraintWeights.append(2)
 
             # Constrain that classStartTimes[i] // DAY_MULT == classDayTimes[i]
-            model.AddDivisionEquality(dummyClassDayTimes[i], classStartTimes[i], DAY_MULT)
-            model.Add(dummyClassDayTimes[i] == classDayTimes[i]).OnlyEnforceIf(constraintBools[-1])
+            model.AddDivisionEquality(
+                dummyClassDayTimes[i], classStartTimes[i], DAY_MULT
+            )
+            model.Add(dummyClassDayTimes[i] == classDayTimes[i]).OnlyEnforceIf(
+                constraintBools[-1]
+            )
 
         # Create integer variables which correspond to the maximum number of days classes should be scheduled on
         # These will take any combination of day values
@@ -240,7 +277,9 @@ def sols(requestData):
 
             # Constrain that classDayTime == one of the possible days classes can be on
             for i in range(len(possibleDays)):
-                model.Add(classDayTime == possibleDays[i]).OnlyEnforceIf(possibleBools[i])
+                model.Add(classDayTime == possibleDays[i]).OnlyEnforceIf(
+                    possibleBools[i]
+                )
 
             # Ensures classDayTime == possibleDays[i] for at least one i
             constraintBools.append(model.NewBoolVar(""))
@@ -248,7 +287,9 @@ def sols(requestData):
             model.AddBoolOr(possibleBools).OnlyEnforceIf(constraintBools[-1])
 
     # Makes the periods (and other constraints) not overlap
-    model.AddNoOverlap(classIntervals + laterThanArr + noLaterThanArr + specialClassIntervals)
+    model.AddNoOverlap(
+        classIntervals + laterThanArr + noLaterThanArr + specialClassIntervals
+    )
 
     # Try to satisfy as many constraints as possible
     model.Maximize(cp_model.LinearExpr.WeightedSum(constraintBools, constraintWeights))
@@ -261,7 +302,10 @@ def sols(requestData):
     unsatisfied = sum(constraintWeights) - solver.ObjectiveValue()
     print(f"Number of constraints unsatisfied: {unsatisfied}")
 
-    if solver.StatusName(status) != "INFEASIBLE" and unsatisfied <= MAX_UNSATISFIED_CONSTRAINTS:
+    if (
+        solver.StatusName(status) != "INFEASIBLE"
+        and unsatisfied <= MAX_UNSATISFIED_CONSTRAINTS
+    ):
         solutions = [solver.Value(classStartTimes[i]) for i in range(numCourses)]
         print(solutions)
         return solutions, unsatisfied == 0
