@@ -42,12 +42,11 @@ const Footer: React.FC = () => {
 
   return (
     <FooterContainer>
-      <div>Designed and built by Shiva. Maintained by Shiva.</div>
+      <div>Maintained by Shiva, year 4 Electrical Engineering in National University of Singapore (NUS).</div>
       <div>
         <Link target="_blank" href="mailto:E0727167@u.nus.edu">
           Email
         </Link>
-        {/* &nbsp;&nbsp;•&nbsp;&nbsp; */}
         {/* <Link target="_blank" href="https://forms.gle/rV3QCwjsEbLNyESE6">
           Feedback
         </Link> */}
@@ -56,7 +55,8 @@ const Footer: React.FC = () => {
           Source
         </Link>
       </div>
-      {lastUpdated !== 0 && <div>Data last updated {getRelativeTime(lastUpdated)} ago.</div>}
+      {/* {lastUpdated !== 0 && <div>Data last updated {getRelativeTime(lastUpdated)} ago.</div>} */}
+      {lastUpdated !== 0 && <div>Data correct as of 7/18/2023, 7:19:26 PM.</div>}
     </FooterContainer>
   );
 };

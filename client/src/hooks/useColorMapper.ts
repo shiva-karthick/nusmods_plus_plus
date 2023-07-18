@@ -1,5 +1,5 @@
-import { useState, useEffect } from 'react';
-import { colors } from '../constants/timetable';
+import { useState, useEffect } from "react";
+import { colors } from "../constants/timetable";
 
 const defaultColor = colors[colors.length - 1];
 
@@ -13,17 +13,19 @@ const defaultColor = colors[colors.length - 1];
  * const assignedColors = useColorMapper(selectedCourses.map(course => course.code))
  */
 const useColorMapper = (courseCodes: string[]): Record<string, string> => {
-  const [assignedColors, setAssignedColors] = useState<Record<string, string>>({});
+  const [assignedColors, setAssignedColors] = useState<Record<string, string>>(
+    {}
+  );
 
   useEffect(() => {
     const takenColors = new Set<string>();
     const newAssignedColors: Record<string, string> = {};
 
     courseCodes.forEach((item) => {
-      const color = colors.find((c) => !takenColors.has(c));
-      newAssignedColors[item] = color || defaultColor;
+      const color = colors.find((c) => !takenColors.has(c)); // Find the first color that is not taken
+      newAssignedColors[item] = color || defaultColor; // If all colors are taken, use the default color
       if (color) {
-        takenColors.add(color);
+        takenColors.add(color); // Add the color to the set of taken colors
       }
     });
 

@@ -1,7 +1,24 @@
-import { PopoverOrigin, SelectChangeEvent } from '@mui/material';
-import { ReactNode } from 'react';
-import { ClassCard } from '../utils/Drag';
-import { ClassData, ClassPeriod, CourseCode, CourseData, EventPeriod, InInventory, Location, Section } from './Periods';
+import { PopoverOrigin, SelectChangeEvent } from "@mui/material";
+import { ReactNode } from "react";
+import { ClassCard } from "../utils/Drag";
+import {
+  ClassData,
+  ClassPeriod,
+  CourseCode,
+  CourseData,
+  EventPeriod,
+  InInventory,
+  Location,
+  Section,
+} from "./Periods";
+
+/**
+ * What is the purpose of this file?
+ * We wish to use interfaces.
+ * The CustomEventGeneralProps interface is a good example of how interfaces can be used to define the contracts between different components in an application.
+ * The interface ensures that the CustomEventGeneral component can communicate with other components in the application
+ * and that it can be used interchangeably with other components that implement the same interface.
+ */
 
 export interface AppContextProviderProps {
   children: ReactNode;
@@ -20,14 +37,22 @@ export interface CustomModalProps {
 
 export interface CourseSelectProps {
   assignedColors: Record<string, string>;
-  handleSelect(data: string | string[], a?: boolean, callback?: (_selectedCourses: CourseData[]) => void): void;
+  handleSelect(
+    data: string | string[],
+    a?: boolean,
+    callback?: (_selectedCourses: CourseData[]) => void
+  ): void;
   handleRemove(courseCode: CourseCode): void;
 }
 
 export interface ControlsProps {
   assignedColors: Record<string, string>;
   handleSelectClass(classData: ClassData): void;
-  handleSelectCourse(data: string | string[], a?: boolean, callback?: (_selectedCourses: CourseData[]) => void): void;
+  handleSelectCourse(
+    data: string | string[],
+    a?: boolean,
+    callback?: (_selectedCourses: CourseData[]) => void
+  ): void;
   handleRemoveCourse(courseCode: CourseCode): void;
 }
 
@@ -170,7 +195,9 @@ export interface CustomEventGeneralProps {
   initialEndTime: Date;
   initialDay: string;
   isInitialStartTime: boolean;
-  setIsInitialStartTime: (isInitialStartTime: boolean) => void;
+  setIsInitialStartTime: (isInitialStartTime: boolean) => void; // The function takes a boolean parameter, isInitialStartTime,
+  // and sets the value of the isInitialStartTime property to the value of the parameter.
+  // The function returns void, which means that it does not return any value.
   isInitialEndTime: boolean;
   setIsInitialEndTime: (isInitialEndTime: boolean) => void;
   isInitialDay: boolean;

@@ -1,13 +1,13 @@
-import React, { createContext, useState } from 'react';
+import React, { createContext, useState } from "react";
 
-import { getDefaultStartTime, getDefaultEndTime } from '../constants/timetable';
-import { CoursesList } from '../interfaces/Courses';
-import { AppContextProviderProps } from '../interfaces/PropTypes';
-import storage from '../utils/storage';
+import { getDefaultStartTime, getDefaultEndTime } from "../constants/timetable";
+import { CoursesList } from "../interfaces/Courses";
+import { AppContextProviderProps } from "../interfaces/PropTypes";
+import storage from "../utils/storage";
 
 export interface IAppContext {
-  is12HourMode: boolean;
-  setIs12HourMode: (newIs12HourMode: boolean) => void;
+  is12HourMode: boolean; // 12-hour or 24-hour mode
+  setIs12HourMode: (newIs12HourMode: boolean) => void; // function to set 12-hour or 24-hour mode, used in Settings.tsx
 
   isDarkMode: boolean;
   setIsDarkMode: (newIsDarkMode: boolean) => void;
@@ -78,8 +78,8 @@ export interface IAppContext {
 }
 
 export const AppContext = createContext<IAppContext>({
-  is12HourMode: false,
-  setIs12HourMode: () => {},
+  is12HourMode: false, // 12-hour or 24-hour mode
+  setIs12HourMode: () => {}, // function to set 12-hour or 24-hour mode, used in Settings.tsx
 
   isDarkMode: false,
   setIsDarkMode: () => {},
@@ -102,7 +102,7 @@ export const AppContext = createContext<IAppContext>({
   isConvertToLocalTimezone: true,
   setIsConvertToLocalTimezone: () => {},
 
-  alertMsg: '',
+  alertMsg: "",
   setAlertMsg: () => {},
 
   errorVisibility: false,
@@ -120,7 +120,7 @@ export const AppContext = createContext<IAppContext>({
   isDrag: false,
   setIsDrag: () => {},
 
-  days: ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday'],
+  days: ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"],
   setDays: () => {},
 
   earliestStartTime: getDefaultStartTime(true),
@@ -129,19 +129,19 @@ export const AppContext = createContext<IAppContext>({
   latestEndTime: getDefaultEndTime(true),
   setLatestEndTime: () => {},
 
-  term: `T0`,
+  term: `T1`,
   setTerm: () => {},
 
-  termName: `Term 0`,
+  termName: `Term 1`,
   setTermName: () => {},
 
   termNumber: 0,
   setTermNumber: () => {},
 
-  year: '0000',
+  year: "0000",
   setYear: () => {},
 
-  firstDayOfTerm: '0000-00-00',
+  firstDayOfTerm: "0000-00-00",
   setFirstDayOfTerm: () => {},
 
   coursesList: [],
@@ -150,37 +150,66 @@ export const AppContext = createContext<IAppContext>({
 
 const AppContextProvider = ({ children }: AppContextProviderProps) => {
   let termData = {
-    year: '',
-    term: '',
-    termNumber: '',
-    termName: '',
-    firstDayOfTerm: '',
+    year: "",
+    term: "",
+    termNumber: "",
+    termName: "",
+    firstDayOfTerm: "",
   };
-  if (localStorage.getItem('termData')) {
-    termData = JSON.parse(localStorage.getItem('termData')!);
+  if (localStorage.getItem("termData")) {
+    termData = JSON.parse(localStorage.getItem("termData")!); // get term data from local storage
   }
-  const [is12HourMode, setIs12HourMode] = useState<boolean>(storage.get('is12HourMode'));
-  const [isDarkMode, setIsDarkMode] = useState<boolean>(storage.get('isDarkMode'));
-  const [isSquareEdges, setIsSquareEdges] = useState<boolean>(storage.get('isSquareEdges'));
-  const [isShowOnlyOpenClasses, setisShowOnlyOpenClasses] = useState<boolean>(storage.get('isShowOnlyOpenClasses'));
-  const [isDefaultUnscheduled, setIsDefaultUnscheduled] = useState<boolean>(storage.get('isDefaultUnscheduled'));
-  const [isHideClassInfo, setIsHideClassInfo] = useState<boolean>(storage.get('isHideClassInfo'));
-  const [isHideExamClasses, setIsHideExamClasses] = useState<boolean>(storage.get('isHideExamClasses'));
-  const [isConvertToLocalTimezone, setIsConvertToLocalTimezone] = useState<boolean>(storage.get('isConvertToLocalTimezone'));
-  const [alertMsg, setAlertMsg] = useState<string>('');
+  const [is12HourMode, setIs12HourMode] = useState<boolean>(
+    storage.get("is12HourMode")
+  );
+  const [isDarkMode, setIsDarkMode] = useState<boolean>(
+    storage.get("isDarkMode")
+  );
+  const [isSquareEdges, setIsSquareEdges] = useState<boolean>(
+    storage.get("isSquareEdges")
+  );
+  const [isShowOnlyOpenClasses, setisShowOnlyOpenClasses] = useState<boolean>(
+    storage.get("isShowOnlyOpenClasses")
+  );
+  const [isDefaultUnscheduled, setIsDefaultUnscheduled] = useState<boolean>(
+    storage.get("isDefaultUnscheduled")
+  );
+  const [isHideClassInfo, setIsHideClassInfo] = useState<boolean>(
+    storage.get("isHideClassInfo")
+  );
+  const [isHideExamClasses, setIsHideExamClasses] = useState<boolean>(
+    storage.get("isHideExamClasses")
+  );
+  const [isConvertToLocalTimezone, setIsConvertToLocalTimezone] =
+    useState<boolean>(storage.get("isConvertToLocalTimezone"));
+  const [alertMsg, setAlertMsg] = useState<string>("");
   const [errorVisibility, setErrorVisibility] = useState<boolean>(false);
   const [infoVisibility, setInfoVisibility] = useState<boolean>(false);
   const [autoVisibility, setAutoVisibility] = useState<boolean>(false);
   const [lastUpdated, setLastUpdated] = useState<number>(0);
   const [isDrag, setIsDrag] = useState<boolean>(false);
-  const [days, setDays] = useState<string[]>(['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday']);
-  const [earliestStartTime, setEarliestStartTime] = useState(getDefaultStartTime(isConvertToLocalTimezone));
-  const [latestEndTime, setLatestEndTime] = useState(getDefaultEndTime(isConvertToLocalTimezone));
-  const [termNumber, setTermNumber] = useState<number>(Number(termData.termNumber) || 0);
+  const [days, setDays] = useState<string[]>([
+    "Monday",
+    "Tuesday",
+    "Wednesday",
+    "Thursday",
+    "Friday",
+  ]); // default days
+  const [earliestStartTime, setEarliestStartTime] = useState(
+    getDefaultStartTime(isConvertToLocalTimezone)
+  );
+  const [latestEndTime, setLatestEndTime] = useState(
+    getDefaultEndTime(isConvertToLocalTimezone)
+  );
+  const [termNumber, setTermNumber] = useState<number>(
+    Number(termData.termNumber) || 0
+  );
   const [term, setTerm] = useState<string>(termData.term || `T0`);
   const [termName, setTermName] = useState<string>(`Term ${termNumber}`);
-  const [year, setYear] = useState<string>(termData.year || '0000');
-  const [firstDayOfTerm, setFirstDayOfTerm] = useState<string>(termData.firstDayOfTerm || `0000-00-00`);
+  const [year, setYear] = useState<string>(termData.year || "0000");
+  const [firstDayOfTerm, setFirstDayOfTerm] = useState<string>(
+    termData.firstDayOfTerm || `0000-00-00`
+  );
   const [coursesList, setCoursesList] = useState<CoursesList>([]);
   const initialContext: IAppContext = {
     is12HourMode,
@@ -231,7 +260,9 @@ const AppContextProvider = ({ children }: AppContextProviderProps) => {
     setCoursesList,
   };
 
-  return <AppContext.Provider value={initialContext}>{children}</AppContext.Provider>;
+  return (
+    <AppContext.Provider value={initialContext}>{children}</AppContext.Provider>
+  );
 };
 
 export default AppContextProvider;

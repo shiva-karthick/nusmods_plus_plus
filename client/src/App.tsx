@@ -20,10 +20,10 @@ import {
   invalidYearFormat,
   unknownErrorMessage,
 } from './constants/timetable';
-import { AppContext } from './context/AppContext';
-import { CourseContext } from './context/CourseContext';
-import useColorMapper from './hooks/useColorMapper';
-import useUpdateEffect from './hooks/useUpdateEffect';
+import { AppContext } from './context/AppContext'; // context for storing app settings
+import { CourseContext } from './context/CourseContext'; // context for storing course data
+import useColorMapper from './hooks/useColorMapper'; // custom hooks for assigning colours to courses
+import useUpdateEffect from './hooks/useUpdateEffect'; // custom hooks for updating local storage
 import NetworkError from './interfaces/NetworkError';
 import { Activity, ClassData, CourseCode, CourseData, InInventory, SelectedClasses } from './interfaces/Periods';
 import { setDropzoneRange, useDrag } from './utils/Drag';
@@ -57,6 +57,7 @@ const Content = styled(Box)`
   grid-template-columns: auto;
   text-align: center;
 `;
+
 
 const ICSButton = styled(Button)`
   && {
@@ -100,6 +101,8 @@ const App: React.FC = () => {
     setLastUpdated,
   } = useContext(AppContext);
 
+  // The useContext hook allows you to access the state of a context object from within a component. 
+  // The useContext hook accepts a context object (the value returned from React.createContext) and returns the current context value for that context.
   const { selectedCourses, setSelectedCourses, selectedClasses, setSelectedClasses, createdEvents, setCreatedEvents } =
     useContext(CourseContext);
 
@@ -133,7 +136,7 @@ const App: React.FC = () => {
 
   useEffect(() => {
     /**
-     * Retrieves term data from the scraper backend
+     * Retrieves term data from the scraper backend, nusmods API
      */
     const fetchTermData = async () => {
       const termData = await getAvailableTermDetails();
@@ -155,7 +158,7 @@ const App: React.FC = () => {
     const fetchCoursesList = async () => {
       const { courses, lastUpdated } = await getCoursesList(year, term);
       setCoursesList(courses);
-      setLastUpdated(lastUpdated);
+      setLastUpdated(lastUpdated); // have to manually set lastUpdated here because the api doesn't return it
     };
 
     if (year !== invalidYearFormat) fetchReliably(fetchCoursesList);
@@ -232,7 +235,7 @@ const App: React.FC = () => {
     noInit?: boolean,
     callback?: (_selectedCourses: CourseData[]) => void
   ) => {
-    const codes: string[] = Array.isArray(data) ? data : [data];
+    const codes: string[] = Array.isArray(data) ? data : [data]; // First convert the data parameter to an array if it is not already an array
     Promise.all(
       codes.map((code) =>
         getCourseInfo(year, term, code, isConvertToLocalTimezone).catch((err) => {
@@ -287,12 +290,14 @@ const App: React.FC = () => {
       const savedClasses: SavedClasses = storage.get('selectedClasses');
       const newSelectedClasses: SelectedClasses = {};
 
+      // Then, we iterate through the saved classes and update the newSelectedClasses object.
       Object.keys(savedClasses).forEach((courseCode) => {
         newSelectedClasses[courseCode] = {};
         Object.keys(savedClasses[courseCode]).forEach((activity) => {
           const classId = savedClasses[courseCode][activity];
           let classData: ClassData | null = null;
-
+          
+          // If the class ID is not null, we try to find the corresponding class data in the newSelectedCourses object.
           if (classId) {
             try {
               const result = newSelectedCourses
@@ -439,7 +444,7 @@ const App: React.FC = () => {
   }, [isConvertToLocalTimezone]);
 
   const assignedColors = useColorMapper(selectedCourses.map((course) => course.code));
-  const theme = isDarkMode ? darkTheme : lightTheme;
+  const theme = isDarkMode ? darkTheme : lightTheme; // set theme based on isDarkMode, by default is dark mode
   const globalStyle = {
     body: {
       background: theme.palette.background.default,
@@ -483,6 +488,7 @@ const App: React.FC = () => {
                 <ICSButton onClick={() => downloadIcsFile(selectedCourses, createdEvents, selectedClasses, firstDayOfTerm)}>
                   save to calendar
                 </ICSButton>
+                {/* Add other buttons here! */}
                 <Footer />
                 <Alerts />
               </Content>

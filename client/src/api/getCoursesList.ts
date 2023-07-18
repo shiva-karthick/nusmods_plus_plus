@@ -1,9 +1,13 @@
 // https://api.nusmods.com/v2/
 
-import { CoursesList, CoursesListWithDate, FetchedCourse } from '../interfaces/Courses';
-import { API_URL } from './config';
-import NetworkError from '../interfaces/NetworkError';
-import timeoutPromise from '../utils/timeoutPromise';
+import {
+  CoursesList,
+  CoursesListWithDate,
+  FetchedCourse,
+} from "../interfaces/Courses";
+import { API_URL } from "./config";
+import NetworkError from "../interfaces/NetworkError";
+import timeoutPromise from "../utils/timeoutPromise";
 
 const toCoursesList = (data: FetchedCourse[]): CoursesList =>
   data.map((course) => ({
@@ -27,25 +31,31 @@ const toCoursesList = (data: FetchedCourse[]): CoursesList =>
  * @example
  * const coursesList = await getCoursesList('2020', 'T1')
  */
-const getCoursesList = async (year: string, term: string): Promise<CoursesListWithDate> => {
+const getCoursesList = async (
+  year: string,
+  term: string
+): Promise<CoursesListWithDate> => {
   const baseURL = `https://api.nusmods.com/v2/`;
   try {
-    const acadYear:string = "2023-2024"
-    const data = await timeoutPromise(1000, fetch(`${baseURL}/${acadYear}/moduleInfo.json`));
+    const acadYear: string = "2023-2024";
+    const data = await timeoutPromise(
+      1000,
+      fetch(`${baseURL}/${acadYear}/moduleInfo.json`)
+    );
     const json = await data.json();
     if (data.status === 400) {
-      throw new NetworkError('Internal server error');
+      throw new NetworkError("Internal server error");
     }
 
     // parse the json here
     // console.log(json[10000].title);
 
     return {
-      lastUpdated: 2023,
+      lastUpdated: 1688211923, // @param date Timestamp in Unix time
       courses: toCoursesList(json),
     };
   } catch (error) {
-    throw new NetworkError('Could not connect to server');
+    throw new NetworkError("Could not connect to server");
   }
 };
 
