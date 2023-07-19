@@ -42,7 +42,7 @@ const LogoImg = styled("img")`
 
 const NavbarBox = styled("div")`
   flex-grow: 1;
-  position: sticky;
+  position: fixed; /* the original code had fixed, but need to experiment on how to display on mobile*/
   margin-left: 0px;
   z-index: 1201; /* overriding https://material-ui.com/customization/z-index/ */
 `;
@@ -88,54 +88,43 @@ const Navbar: React.FC = () => {
             <Weak>{isMobile ? term : termName.concat(", ", year)}</Weak>
           </NavbarTitle>
 
-          {/* <Grid container spacing={1} direction="row" flex={1} > */}
-          <Stack direction="row" spacing={1} >
-          <Grid item xs={12} sm={6}>
+          <Stack direction="row" spacing={1}>
             <Button
               variant="contained"
-              
               style={{ backgroundColor: "#EF7B00", color: "white" }}
               startIcon={<User />}
               onClick={() => alert("Username Button Clicked")}
             >
               Username
             </Button>
-            </Grid>
-            <Grid item xs={12} sm={6}>
+
             <Button
               variant="contained"
-              
               style={{ backgroundColor: "#3f51b5", color: "white" }}
               startIcon={<Friends />}
               onClick={() => alert("Friends Button Clicked")}
             >
               Friends
             </Button>
-            </Grid>
-            <Grid item xs={12} sm={6}>
+
             <Button
               variant="contained"
-              
               style={{ backgroundColor: "#4caf50", color: "white" }}
               startIcon={<AddIcon />}
               onClick={() => alert("Add Friends Button Clicked")}
             >
               Add Friends
             </Button>
-            </Grid>
-            <Grid item xs={12} sm={6}>
+
             <Button
               variant="contained"
-              
               style={{ backgroundColor: "#f44336", color: "white" }}
               startIcon={<LogoutIcon />}
               onClick={() => alert("Logout Button Clicked")}
             >
               Logout
             </Button>
-            </Grid>
           </Stack>
-          {/* </Grid> */}
 
           <CustomModal
             title="About"
