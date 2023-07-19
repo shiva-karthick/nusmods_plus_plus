@@ -16,6 +16,7 @@ import Alerts from "./components/Alerts";
 import Controls from "./components/controls/Controls";
 import Footer from "./components/Footer";
 import Navbar from "./components/navbar/Navbar";
+import { TimetableTabs } from './components/timetableTabs/TimetableTabs';
 import Timetable from "./components/timetable/Timetable";
 import { contentPadding, darkTheme, lightTheme } from "./constants/theme";
 import {
@@ -120,6 +121,11 @@ const App: React.FC = () => {
     setTermNumber,
     setCoursesList,
     setLastUpdated,
+    selectedTimetable,
+    displayTimetables,
+    setDisplayTimetables,
+    courseData,
+    setCourseData,
   } = useContext(AppContext);
 
   // The useContext hook allows you to access the state of a context object from within a component.
@@ -136,10 +142,10 @@ const App: React.FC = () => {
   setDropzoneRange(days.length, earliestStartTime, latestEndTime);
 
   /**
-   * Attemps callback() several times before raising error. Intended for unreliable fetches
+   * Attempts callback() several times before raising error. Intended for unreliable fetches
    */
   const maxFetchAttempts: number = 6;
-  const fetchCooldown: number = 120; // milliseconds
+  const fetchCooldown: number = 120;
   const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
   const fetchReliably = async (callback: () => Promise<void>) => {
     for (let attempt: number = 1; attempt <= maxFetchAttempts; attempt++) {
@@ -280,6 +286,8 @@ const App: React.FC = () => {
 
       let newSelectedCourses = [...selectedCourses];
 
+      let newCourseData = courseData;
+
       // Update the existing courses with the new data (for changing timezones).
       addedCourses.forEach((addedCourse) => {
         if (newSelectedCourses.find((x) => x.code === addedCourse.code)) {
@@ -290,9 +298,13 @@ const App: React.FC = () => {
         } else {
           newSelectedCourses.push(addedCourse);
         }
+        if (!courseData.map.find((i) => i.code === addedCourse.code)) {
+          newCourseData.map.push(addedCourse);
+        }
       });
 
       setSelectedCourses(newSelectedCourses);
+      setCourseData(newCourseData);
 
       if (!noInit) addedCourses.forEach((course) => initCourse(course));
       if (callback) callback(newSelectedCourses);
@@ -309,6 +321,20 @@ const App: React.FC = () => {
       (course) => course.code !== courseCode
     );
     setSelectedCourses(newSelectedCourses);
+
+    const newCourseData = courseData;
+    newCourseData.map = courseData.map.filter((targetCourse) => {
+      for (const timetable of displayTimetables) {
+        for (const course of timetable.selectedCourses) {
+          if (course.code.localeCompare(courseCode)) {
+            return true;
+          }
+        }
+      }
+      return false;
+    });
+    setCourseData(newCourseData);
+
     setSelectedClasses((prev) => {
       prev = { ...prev };
       delete prev[courseCode];
@@ -327,20 +353,29 @@ const App: React.FC = () => {
    */
   const updateTimetableEvents = () => {
     handleSelectCourse(
-      storage.get("selectedCourses"),
+      storage.get('timetables')[selectedTimetable].selectedCourses.map((course: CourseData) => course.code),
       true,
       (newSelectedCourses) => {
-        const savedClasses: SavedClasses = storage.get("selectedClasses");
+        const timetableSelectedClasses: SelectedClasses = storage.get('timetables')[selectedTimetable].selectedClasses;
+
+        const savedClasses: SavedClasses = {};
+
+        Object.keys(timetableSelectedClasses).forEach((courseCode) => {
+          savedClasses[courseCode] = {};
+          Object.keys(timetableSelectedClasses[courseCode]).forEach((activity) => {
+            const classData = timetableSelectedClasses[courseCode][activity];
+            savedClasses[courseCode][activity] = classData ? classData.section : null;
+          });
+        });
+
         const newSelectedClasses: SelectedClasses = {};
 
-        // Then, we iterate through the saved classes and update the newSelectedClasses object.
         Object.keys(savedClasses).forEach((courseCode) => {
           newSelectedClasses[courseCode] = {};
           Object.keys(savedClasses[courseCode]).forEach((activity) => {
             const classId = savedClasses[courseCode][activity];
             let classData: ClassData | null = null;
 
-            // If the class ID is not null, we try to find the corresponding class data in the newSelectedCourses object.
             if (classId) {
               try {
                 const result = newSelectedCourses
@@ -360,7 +395,7 @@ const App: React.FC = () => {
         setSelectedClasses(newSelectedClasses);
       }
     );
-    setCreatedEvents(storage.get("createdEvents"));
+    setCreatedEvents(storage.get('timetables')[selectedTimetable].createdEvents);
   };
 
   useEffect(() => {
@@ -369,31 +404,29 @@ const App: React.FC = () => {
 
   // The following three useUpdateEffects update local storage whenever a change is made to the timetable
   useUpdateEffect(() => {
-    storage.set(
-      "selectedCourses",
-      selectedCourses.map((course) => course.code)
-    );
+    displayTimetables[selectedTimetable].selectedCourses = selectedCourses;
+    let newCourseData = courseData;
+    storage.set('courseData', newCourseData);
+    storage.set('timetables', displayTimetables);
+    setDisplayTimetables(displayTimetables);
   }, [selectedCourses]);
 
   useUpdateEffect(() => {
-    const savedClasses: SavedClasses = {};
-
-    Object.keys(selectedClasses).forEach((courseCode) => {
-      savedClasses[courseCode] = {};
-      Object.keys(selectedClasses[courseCode]).forEach((activity) => {
-        const classData = selectedClasses[courseCode][activity];
-        savedClasses[courseCode][activity] = classData
-          ? classData.section
-          : null;
-      });
-    });
-
-    storage.set("selectedClasses", savedClasses);
+    displayTimetables[selectedTimetable].selectedClasses = selectedClasses;
+    storage.set('timetables', displayTimetables);
+    setDisplayTimetables(displayTimetables);
   }, [selectedClasses]);
 
   useUpdateEffect(() => {
-    storage.set("createdEvents", createdEvents);
+    displayTimetables[selectedTimetable].createdEvents = createdEvents;
+    storage.set('timetables', displayTimetables);
+    setDisplayTimetables(displayTimetables);
   }, [createdEvents]);
+
+  // Update storage when dragging timetables
+  useUpdateEffect(() => {
+    storage.set('timetables', displayTimetables);
+  }, [displayTimetables]);
 
   /**
    * Get the latest day of the week a course has classes on
@@ -419,28 +452,36 @@ const App: React.FC = () => {
   };
 
   /**
+   * Upon switching timetable, reset default bounds
+   */
+  useEffect(() => {
+    setEarliestStartTime(getDefaultStartTime(isConvertToLocalTimezone));
+    setLatestEndTime(getDefaultEndTime(isConvertToLocalTimezone));
+  }, [selectedTimetable]);
+
+  /**
    *  Update the bounds of the timetable (start time, end time, number of days) whenever a change is made to the timetable
    */
   const updateTimetableDaysAndTimes = () => {
-    setEarliestStartTime(
+    setEarliestStartTime((prev: number) =>
       Math.min(
         ...selectedCourses.map((course) => course.earliestStartTime),
         ...Object.entries(createdEvents).map(([_, eventPeriod]) =>
           Math.floor(eventPeriod.time.start)
         ),
         getDefaultStartTime(isConvertToLocalTimezone),
-        earliestStartTime
+        prev
       )
     );
 
-    setLatestEndTime(
+    setLatestEndTime((prev: number) =>
       Math.max(
         ...selectedCourses.map((course) => course.latestFinishTime),
         ...Object.entries(createdEvents).map(([_, eventPeriod]) =>
           Math.ceil(eventPeriod.time.end)
         ),
         getDefaultEndTime(isConvertToLocalTimezone),
-        latestEndTime
+        prev
       )
     );
 
@@ -538,6 +579,8 @@ const App: React.FC = () => {
                   handleSelectCourse={handleSelectCourse}
                   handleRemoveCourse={handleRemoveCourse}
                 />
+
+                <TimetableTabs />
 
                 {/* Hello, modifying here! start*/}
                 <div ref = {myRef}>

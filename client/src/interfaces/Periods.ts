@@ -7,7 +7,10 @@ export type EventCode = string;
 // export type Status = 'Open' | 'Full' | 'On Hold';
 export type Status = string;
 
-export type SelectedClasses = Record<CourseCode, Record<Activity, ClassData | InInventory>>;
+export type SelectedClasses = Record<
+  CourseCode,
+  Record<Activity, ClassData | InInventory>
+>;
 // Explained more beatifully here, {CourseCode : {Activity : ClassData | InInventory}}
 
 export type CreatedEvents = Record<EventCode, EventPeriod>;
@@ -36,6 +39,14 @@ export interface ClassData {
   section: Section; // string
 }
 
+export interface TimetableData {
+  name: string;
+  id: string;
+  selectedCourses: CourseData[];
+  selectedClasses: SelectedClasses;
+  createdEvents: CreatedEvents;
+}
+
 export interface InventoryData {
   courseCode: CourseCode;
   activity: Activity;
@@ -50,7 +61,7 @@ export interface EventData {
 }
 
 export interface ClassPeriod {
-  type: 'class';
+  type: "class";
   classId: string;
   courseCode: CourseCode; // string
   activity: Activity; // string
@@ -60,14 +71,14 @@ export interface ClassPeriod {
 }
 
 export interface InventoryPeriod {
-  type: 'inventory';
+  type: "inventory";
   classId: null;
   courseCode: CourseCode;
   activity: Activity;
 }
 
 export interface EventPeriod {
-  type: 'event';
+  type: "event";
   event: EventData;
   time: EventTime;
 }
@@ -117,7 +128,12 @@ export interface DuplicateClassData {
 }
 
 export interface Action {
+  name: string;
   courses: CourseData[];
   classes: SelectedClasses; // {CourseCode : {Activity : ClassData | InInventory}}
   events: CreatedEvents;
+}
+
+export interface CourseDataMap {
+  map: CourseData[];
 }

@@ -1,6 +1,6 @@
-import { TabPanel } from '@mui/lab';
-import { Button, ListItem, ListItemText, Menu, MenuProps } from '@mui/material';
-import { alpha, styled } from '@mui/system';
+import { TabPanel } from "@mui/lab";
+import { Button, ListItem, ListItemText, Menu, MenuProps } from "@mui/material";
+import { alpha, styled } from "@mui/system";
 
 export const DropdownButton = styled(Button)`
   && {
@@ -17,10 +17,6 @@ export const DropdownButton = styled(Button)`
 
 export const StyledTabPanel = styled(TabPanel)`
   padding-bottom: 0;
-`;
-
-export const StyledListItem = styled(ListItem)`
-  padding-top: 8px;
 `;
 
 export const StyledListItemText = styled(ListItemText)`
@@ -43,35 +39,28 @@ export const StyledMenu = styled((props: MenuProps) => (
   <Menu
     elevation={0}
     anchorOrigin={{
-      vertical: 'bottom',
-      horizontal: 'right',
+      vertical: "bottom",
+      horizontal: "right",
     }}
     transformOrigin={{
-      vertical: 'top',
-      horizontal: 'left',
+      vertical: "top",
+      horizontal: "left",
     }}
     {...props}
   />
 ))(({ theme }) => ({
-  '& .MuiPaper-root': {
+  "& .MuiPaper-root": {
     borderRadius: 10,
-    borderStyle: 'solid',
-    borderColor: alpha(theme.palette.grey[800], 0.85),
-    borderWidth: 'thin',
+
+    borderWidth: "thin",
     minWidth: 180,
-    color: theme.palette.grey[300],
-    backgroundColor: alpha(theme.palette.grey[900], 0.9),
-    '& .MuiMenuItem-root': {
-      '& .MuiSvgIcon-root': {
+
+    boxShadow: "11px 10px 14px -3px rgba(0,0,0,0.1)",
+    "& .MuiMenuItem-root": {
+      "& .MuiSvgIcon-root": {
         fontSize: 18,
-        color: theme.palette.grey[300],
+
         marginRight: theme.spacing(1.5),
-      },
-      '&:hover': {
-        backgroundColor: 'rgb(97, 97, 97, 0.4) !important',
-      },
-      '&:active': {
-        backgroundColor: alpha(theme.palette.grey[300], 0.5),
       },
     },
   },

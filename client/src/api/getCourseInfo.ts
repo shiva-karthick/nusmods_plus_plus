@@ -115,10 +115,10 @@ const getCourseInfo = async (
     // Remove any leftover courses from localStorage if they are not offered in the current term
     // which is why a 400 error is returned
     if (data.status === 400) {
-      const selectedCourses = storage.get("selectedCourses");
+      const selectedCourses = storage.get("timetables")[0].selectedCourses;
       if (selectedCourses.includes(courseCode)) {
         delete selectedCourses[courseCode];
-        storage.set("selectedCourses", selectedCourses);
+        storage.set("timetables[0].selectedCourses", selectedCourses);
       } else {
         throw new NetworkError("Internal server error");
       }
@@ -128,33 +128,33 @@ const getCourseInfo = async (
 
     // console.log(json); // Used to debug
     // console.log(json.semesterData[0].timetable); // Used to debug
-    
-    let _classes:any = [];
-    
+
+    let _classes: any = [];
+
     json.semesterData[0].timetable.forEach((element: any) => {
-      const _class:any = {
+      const _class: any = {
         activity: element.lessonType, // string
-          times: [
-            {
-              time: {
-                start: convertTime(element.startTime),
-                end: convertTime(element.endTime),
-              },
-              day: element.day.slice(0, 3), // string
-              location: element.venue, // string
-              weeks: element.weeks.toString(), // "1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13"
+        times: [
+          {
+            time: {
+              start: convertTime(element.startTime),
+              end: convertTime(element.endTime),
             },
-          ], // array of DbTimes
-          status: "Open", // 'Open' | 'Full' | 'On Hold'
-          courseEnrolment: {
-            enrolments: 100, // fake value
-            capacity: 500,
-          }, // {enrolments, capacity}
-          section: json.department, // string
+            day: element.day.slice(0, 3), // string
+            location: element.venue, // string
+            weeks: element.weeks.toString(), // "1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13"
+          },
+        ], // array of DbTimes
+        status: "Open", // 'Open' | 'Full' | 'On Hold'
+        courseEnrolment: {
+          enrolments: 100, // fake value
+          capacity: 500,
+        }, // {enrolments, capacity}
+        section: json.department, // string
       };
       _classes.push(_class);
     });
-    
+
     // console.log(_classes);
 
     // work on new code
@@ -162,46 +162,46 @@ const getCourseInfo = async (
       courseCode: json.moduleCode, // "EE2211"
       name: json.title, // "Introduction to Machine Learning"
       // classes: [
-        // {
-        //   activity: "Tutorial", // string
-        //   times: [
-        //     {
-        //       time: {
-        //         start: "12:00",
-        //         end: "14:00",
-        //       },
-        //       day: "Tue",
-        //       location: "Home",
-        //       weeks: "1-5, 7-10",
-        //     },
-        //   ], // array of DbTimes
-        //   status: "Open", // 'Open' | 'Full' | 'On Hold'
-        //   courseEnrolment: {
-        //     enrolments: 100,
-        //     capacity: 500,
-        //   }, // {enrolments, capacity}
-        //   section: "Electrical Engineering", // string
-        // },
-        // {
-        //   activity: "Lecture", // string
-        //   times: [
-        //     {
-        //       time: {
-        //         start: "12:00",
-        //         end: "14:00",
-        //       },
-        //       day: "Wed",
-        //       location: "E4-05",
-        //       weeks: "1-5, 7-10",
-        //     },
-        //   ], // array of DbTimes
-        //   status: "Open", // 'Open' | 'Full' | 'On Hold'
-        //   courseEnrolment: {
-        //     enrolments: 100,
-        //     capacity: 500,
-        //   }, // {enrolments, capacity}
-        //   section: "Electrical Engineering", // string
-        // }
+      // {
+      //   activity: "Tutorial", // string
+      //   times: [
+      //     {
+      //       time: {
+      //         start: "12:00",
+      //         end: "14:00",
+      //       },
+      //       day: "Tue",
+      //       location: "Home",
+      //       weeks: "1-5, 7-10",
+      //     },
+      //   ], // array of DbTimes
+      //   status: "Open", // 'Open' | 'Full' | 'On Hold'
+      //   courseEnrolment: {
+      //     enrolments: 100,
+      //     capacity: 500,
+      //   }, // {enrolments, capacity}
+      //   section: "Electrical Engineering", // string
+      // },
+      // {
+      //   activity: "Lecture", // string
+      //   times: [
+      //     {
+      //       time: {
+      //         start: "12:00",
+      //         end: "14:00",
+      //       },
+      //       day: "Wed",
+      //       location: "E4-05",
+      //       weeks: "1-5, 7-10",
+      //     },
+      //   ], // array of DbTimes
+      //   status: "Open", // 'Open' | 'Full' | 'On Hold'
+      //   courseEnrolment: {
+      //     enrolments: 100,
+      //     capacity: 500,
+      //   }, // {enrolments, capacity}
+      //   section: "Electrical Engineering", // string
+      // }
       // ],
       classes: _classes,
     };

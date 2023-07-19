@@ -1,10 +1,18 @@
-import React, { useContext } from 'react';
-import { Alert, Snackbar } from '@mui/material';
-import { AppContext } from '../context/AppContext';
+import React, { useContext } from "react";
+import { Alert, Snackbar } from "@mui/material";
+import { AppContext } from "../context/AppContext";
 
 const Alerts: React.FC = () => {
-  const { alertMsg, errorVisibility, setErrorVisibility, infoVisibility, setInfoVisibility, autoVisibility, setAutoVisibility } =
-    useContext(AppContext);
+  const {
+    alertMsg,
+    errorVisibility,
+    setErrorVisibility,
+    infoVisibility,
+    setInfoVisibility,
+    autoVisibility,
+    setAutoVisibility,
+    alertFunction,
+  } = useContext(AppContext);
 
   const handleErrorClose = () => {
     setErrorVisibility(false);
@@ -19,36 +27,58 @@ const Alerts: React.FC = () => {
   };
 
   const getAutoSeverity = () => {
-    if (alertMsg === 'Success!') return 'success';
-    if (alertMsg === 'Copied to clipboard!') return 'success';
-    if (alertMsg.startsWith('Could not')) return 'warning';
-    return 'error';
+    if (alertMsg === "Success!") return "success";
+    if (alertMsg === 'Copied to clipboard!') return 'success'; // for copying a custom event link
+    if (alertMsg.startsWith("Could not")) return "warning";
+    if (alertMsg.startsWith('Delete')) return 'info'; // for deleting a timetable
+    return "error";
   };
+
+  // Alerts.ts was not designed to handle onclick events and does not take props, so forgive this code
+  const deleteAlert = alertMsg.startsWith('Delete');
 
   return (
     <>
       <Snackbar
         open={errorVisibility}
-        anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
-        autoHideDuration={2000}
+        anchorOrigin={{ vertical: "bottom", horizontal: "center" }}
+        autoHideDuration={deleteAlert ? 5000 : 2000}
         onClose={handleErrorClose}
       >
         <Alert severity="error" onClose={handleErrorClose} variant="filled">
-          {alertMsg}
+        {deleteAlert ? (
+            <span
+              onClick={() => {
+                alertFunction();
+                handleAutoClose();
+              }}
+            >
+              {alertMsg}
+            </span>
+          ) : (
+            alertMsg
+          )}
         </Alert>
       </Snackbar>
-      <Snackbar open={infoVisibility} anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}>
+      <Snackbar
+        open={infoVisibility}
+        anchorOrigin={{ vertical: "bottom", horizontal: "center" }}
+      >
         <Alert severity="info" onClose={handleInfoClose} variant="filled">
           Press and hold to drag a card
         </Alert>
       </Snackbar>
       <Snackbar
         open={autoVisibility}
-        anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
+        anchorOrigin={{ vertical: "bottom", horizontal: "center" }}
         autoHideDuration={2000}
         onClose={handleAutoClose}
       >
-        <Alert severity={getAutoSeverity()} onClose={handleAutoClose} variant="filled">
+        <Alert
+          severity={getAutoSeverity()}
+          onClose={handleAutoClose}
+          variant="filled"
+        >
           {alertMsg}
         </Alert>
       </Snackbar>

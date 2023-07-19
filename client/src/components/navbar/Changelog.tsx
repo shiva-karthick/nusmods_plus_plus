@@ -15,6 +15,10 @@ type Change = { date: String; changes: String[] };
 
 const changelog: Change[] = [
   {
+    date: 'July 19, 2023',
+    changes: ['Multiple timetables can be created by a user at the same time, saved to Firebase NOSQL db'],
+  },
+  {
     date: 'July 6, 2023',
     changes: ['Synced data with Nusmods API: Done by Shankar'],
   },
