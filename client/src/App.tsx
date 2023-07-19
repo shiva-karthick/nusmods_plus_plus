@@ -1,17 +1,23 @@
-import React, { useContext, useEffect } from 'react';
-import { Box, Button, GlobalStyles, StyledEngineProvider, ThemeProvider } from '@mui/material';
-import { styled } from '@mui/system';
-import { LocalizationProvider } from '@mui/x-date-pickers';
-import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
-import * as Sentry from '@sentry/react';
-import getCourseInfo from './api/getCourseInfo';
-import getCoursesList from './api/getCoursesList';
-import Alerts from './components/Alerts';
-import Controls from './components/controls/Controls';
-import Footer from './components/Footer';
-import Navbar from './components/navbar/Navbar';
-import Timetable from './components/timetable/Timetable';
-import { contentPadding, darkTheme, lightTheme } from './constants/theme';
+import React, { useContext, useEffect, useRef, useCallback } from "react";
+import {
+  Box,
+  Button,
+  GlobalStyles,
+  StyledEngineProvider,
+  ThemeProvider,
+} from "@mui/material";
+import { styled } from "@mui/system";
+import { LocalizationProvider } from "@mui/x-date-pickers";
+import { AdapterDateFns } from "@mui/x-date-pickers/AdapterDateFns";
+import * as Sentry from "@sentry/react";
+import getCourseInfo from "./api/getCourseInfo";
+import getCoursesList from "./api/getCoursesList";
+import Alerts from "./components/Alerts";
+import Controls from "./components/controls/Controls";
+import Footer from "./components/Footer";
+import Navbar from "./components/navbar/Navbar";
+import Timetable from "./components/timetable/Timetable";
+import { contentPadding, darkTheme, lightTheme } from "./constants/theme";
 import {
   daysLong,
   getAvailableTermDetails,
@@ -19,16 +25,26 @@ import {
   getDefaultStartTime,
   invalidYearFormat,
   unknownErrorMessage,
-} from './constants/timetable';
-import { AppContext } from './context/AppContext'; // context for storing app settings
-import { CourseContext } from './context/CourseContext'; // context for storing course data
-import useColorMapper from './hooks/useColorMapper'; // custom hooks for assigning colours to courses
-import useUpdateEffect from './hooks/useUpdateEffect'; // custom hooks for updating local storage
-import NetworkError from './interfaces/NetworkError';
-import { Activity, ClassData, CourseCode, CourseData, InInventory, SelectedClasses } from './interfaces/Periods';
-import { setDropzoneRange, useDrag } from './utils/Drag';
-import { downloadIcsFile } from './utils/generateICS';
-import storage from './utils/storage';
+} from "./constants/timetable";
+import { AppContext } from "./context/AppContext"; // context for storing app settings
+import { CourseContext } from "./context/CourseContext"; // context for storing course data
+import useColorMapper from "./hooks/useColorMapper"; // custom hooks for assigning colours to courses
+import useUpdateEffect from "./hooks/useUpdateEffect"; // custom hooks for updating local storage
+import NetworkError from "./interfaces/NetworkError";
+import {
+  Activity,
+  ClassData,
+  CourseCode,
+  CourseData,
+  InInventory,
+  SelectedClasses,
+} from "./interfaces/Periods";
+import { setDropzoneRange, useDrag } from "./utils/Drag";
+import { downloadIcsFile } from "./utils/generateICS";
+import storage from "./utils/storage";
+import { SaveTimetableOptions } from "./components/SaveTimetableOptions";
+
+
 
 const StyledApp = styled(Box)`
   height: 100%;
@@ -58,7 +74,6 @@ const Content = styled(Box)`
   text-align: center;
 `;
 
-
 const ICSButton = styled(Button)`
   && {
     min-width: 250px;
@@ -72,6 +87,12 @@ const ICSButton = styled(Button)`
 `;
 
 const App: React.FC = () => {
+
+  // some testing
+  const myRef = useRef<HTMLDivElement>(null)
+  // passed down to SaveTimetableOptions.tsx
+  // some testing
+
   const {
     is12HourMode,
     isDarkMode,
@@ -101,10 +122,16 @@ const App: React.FC = () => {
     setLastUpdated,
   } = useContext(AppContext);
 
-  // The useContext hook allows you to access the state of a context object from within a component. 
+  // The useContext hook allows you to access the state of a context object from within a component.
   // The useContext hook accepts a context object (the value returned from React.createContext) and returns the current context value for that context.
-  const { selectedCourses, setSelectedCourses, selectedClasses, setSelectedClasses, createdEvents, setCreatedEvents } =
-    useContext(CourseContext);
+  const {
+    selectedCourses,
+    setSelectedCourses,
+    selectedClasses,
+    setSelectedClasses,
+    createdEvents,
+    setCreatedEvents,
+  } = useContext(CourseContext);
 
   setDropzoneRange(days.length, earliestStartTime, latestEndTime);
 
@@ -197,7 +224,7 @@ const App: React.FC = () => {
     });
   };
 
-  useDrag(handleSelectClass, handleRemoveClass);
+  useDrag(handleSelectClass, handleRemoveClass); // Sets the select and remove class handler functions (from App)
 
   /**
    * Initialise class data for a course when it is first selected
@@ -214,7 +241,9 @@ const App: React.FC = () => {
       Object.keys(course.activities).forEach((activity) => {
         prev[course.code][activity] = isDefaultUnscheduled
           ? null
-          : course.activities[activity].find((x) => x.enrolments !== x.capacity && x.periods.length) ??
+          : course.activities[activity].find(
+              (x) => x.enrolments !== x.capacity && x.periods.length
+            ) ??
             course.activities[activity].find((x) => x.periods.length) ??
             null;
       });
@@ -238,19 +267,25 @@ const App: React.FC = () => {
     const codes: string[] = Array.isArray(data) ? data : [data]; // First convert the data parameter to an array if it is not already an array
     Promise.all(
       codes.map((code) =>
-        getCourseInfo(year, term, code, isConvertToLocalTimezone).catch((err) => {
-          return err;
-        })
+        getCourseInfo(year, term, code, isConvertToLocalTimezone).catch(
+          (err) => {
+            return err;
+          }
+        )
       )
     ).then((result) => {
-      const addedCourses = result.filter((course) => course.code !== undefined) as CourseData[];
+      const addedCourses = result.filter(
+        (course) => course.code !== undefined
+      ) as CourseData[];
 
       let newSelectedCourses = [...selectedCourses];
 
       // Update the existing courses with the new data (for changing timezones).
       addedCourses.forEach((addedCourse) => {
         if (newSelectedCourses.find((x) => x.code === addedCourse.code)) {
-          const index = newSelectedCourses.findIndex((x) => x.code === addedCourse.code);
+          const index = newSelectedCourses.findIndex(
+            (x) => x.code === addedCourse.code
+          );
           newSelectedCourses[index] = addedCourse;
         } else {
           newSelectedCourses.push(addedCourse);
@@ -270,7 +305,9 @@ const App: React.FC = () => {
    * @param courseCode The course code of the course which was removed
    */
   const handleRemoveCourse = (courseCode: CourseCode) => {
-    const newSelectedCourses = selectedCourses.filter((course) => course.code !== courseCode);
+    const newSelectedCourses = selectedCourses.filter(
+      (course) => course.code !== courseCode
+    );
     setSelectedCourses(newSelectedCourses);
     setSelectedClasses((prev) => {
       prev = { ...prev };
@@ -280,43 +317,50 @@ const App: React.FC = () => {
   };
 
   type ClassId = string;
-  type SavedClasses = Record<CourseCode, Record<Activity, ClassId | InInventory>>;
+  type SavedClasses = Record<
+    CourseCode,
+    Record<Activity, ClassId | InInventory>
+  >;
 
   /**
    * Populate selected courses, classes and created events with the data saved in local storage
    */
   const updateTimetableEvents = () => {
-    handleSelectCourse(storage.get('selectedCourses'), true, (newSelectedCourses) => {
-      const savedClasses: SavedClasses = storage.get('selectedClasses');
-      const newSelectedClasses: SelectedClasses = {};
+    handleSelectCourse(
+      storage.get("selectedCourses"),
+      true,
+      (newSelectedCourses) => {
+        const savedClasses: SavedClasses = storage.get("selectedClasses");
+        const newSelectedClasses: SelectedClasses = {};
 
-      // Then, we iterate through the saved classes and update the newSelectedClasses object.
-      Object.keys(savedClasses).forEach((courseCode) => {
-        newSelectedClasses[courseCode] = {};
-        Object.keys(savedClasses[courseCode]).forEach((activity) => {
-          const classId = savedClasses[courseCode][activity];
-          let classData: ClassData | null = null;
-          
-          // If the class ID is not null, we try to find the corresponding class data in the newSelectedCourses object.
-          if (classId) {
-            try {
-              const result = newSelectedCourses
-                .find((x) => x.code === courseCode)
-                ?.activities[activity].find((x) => x.section === classId);
-              if (result) classData = result;
-            } catch (err) {
-              setAlertMsg(unknownErrorMessage);
-              setErrorVisibility(true);
+        // Then, we iterate through the saved classes and update the newSelectedClasses object.
+        Object.keys(savedClasses).forEach((courseCode) => {
+          newSelectedClasses[courseCode] = {};
+          Object.keys(savedClasses[courseCode]).forEach((activity) => {
+            const classId = savedClasses[courseCode][activity];
+            let classData: ClassData | null = null;
+
+            // If the class ID is not null, we try to find the corresponding class data in the newSelectedCourses object.
+            if (classId) {
+              try {
+                const result = newSelectedCourses
+                  .find((x) => x.code === courseCode)
+                  ?.activities[activity].find((x) => x.section === classId);
+                if (result) classData = result;
+              } catch (err) {
+                setAlertMsg(unknownErrorMessage);
+                setErrorVisibility(true);
+              }
             }
-          }
 
-          // classData being null means the activity is unscheduled
-          newSelectedClasses[courseCode][activity] = classData;
+            // classData being null means the activity is unscheduled
+            newSelectedClasses[courseCode][activity] = classData;
+          });
         });
-      });
-      setSelectedClasses(newSelectedClasses);
-    });
-    setCreatedEvents(storage.get('createdEvents'));
+        setSelectedClasses(newSelectedClasses);
+      }
+    );
+    setCreatedEvents(storage.get("createdEvents"));
   };
 
   useEffect(() => {
@@ -326,7 +370,7 @@ const App: React.FC = () => {
   // The following three useUpdateEffects update local storage whenever a change is made to the timetable
   useUpdateEffect(() => {
     storage.set(
-      'selectedCourses',
+      "selectedCourses",
       selectedCourses.map((course) => course.code)
     );
   }, [selectedCourses]);
@@ -338,15 +382,17 @@ const App: React.FC = () => {
       savedClasses[courseCode] = {};
       Object.keys(selectedClasses[courseCode]).forEach((activity) => {
         const classData = selectedClasses[courseCode][activity];
-        savedClasses[courseCode][activity] = classData ? classData.section : null;
+        savedClasses[courseCode][activity] = classData
+          ? classData.section
+          : null;
       });
     });
 
-    storage.set('selectedClasses', savedClasses);
+    storage.set("selectedClasses", savedClasses);
   }, [selectedClasses]);
 
   useUpdateEffect(() => {
-    storage.set('createdEvents', createdEvents);
+    storage.set("createdEvents", createdEvents);
   }, [createdEvents]);
 
   /**
@@ -379,7 +425,9 @@ const App: React.FC = () => {
     setEarliestStartTime(
       Math.min(
         ...selectedCourses.map((course) => course.earliestStartTime),
-        ...Object.entries(createdEvents).map(([_, eventPeriod]) => Math.floor(eventPeriod.time.start)),
+        ...Object.entries(createdEvents).map(([_, eventPeriod]) =>
+          Math.floor(eventPeriod.time.start)
+        ),
         getDefaultStartTime(isConvertToLocalTimezone),
         earliestStartTime
       )
@@ -388,7 +436,9 @@ const App: React.FC = () => {
     setLatestEndTime(
       Math.max(
         ...selectedCourses.map((course) => course.latestFinishTime),
-        ...Object.entries(createdEvents).map(([_, eventPeriod]) => Math.ceil(eventPeriod.time.end)),
+        ...Object.entries(createdEvents).map(([_, eventPeriod]) =>
+          Math.ceil(eventPeriod.time.end)
+        ),
         getDefaultEndTime(isConvertToLocalTimezone),
         latestEndTime
       )
@@ -399,7 +449,9 @@ const App: React.FC = () => {
         0,
         Math.max(
           getLatestDotW(selectedCourses),
-          ...Object.entries(createdEvents).map(([_, eventPeriod]) => eventPeriod.time.day),
+          ...Object.entries(createdEvents).map(
+            ([_, eventPeriod]) => eventPeriod.time.day
+          ),
           days.length, // Saturday and/or Sunday columns persist until the next reload even if they aren't needed anymore
           5 // default
         )
@@ -412,59 +464,61 @@ const App: React.FC = () => {
   }, [createdEvents, selectedCourses, isConvertToLocalTimezone]);
 
   useEffect(() => {
-    storage.set('is12HourMode', is12HourMode);
+    storage.set("is12HourMode", is12HourMode);
   }, [is12HourMode]);
 
   useEffect(() => {
-    storage.set('isDarkMode', isDarkMode);
+    storage.set("isDarkMode", isDarkMode);
   }, [isDarkMode]);
 
   useEffect(() => {
-    storage.set('isSquareEdges', isSquareEdges);
+    storage.set("isSquareEdges", isSquareEdges);
   }, [isSquareEdges]);
 
   useEffect(() => {
-    storage.set('isShowOnlyOpenClasses', isShowOnlyOpenClasses);
+    storage.set("isShowOnlyOpenClasses", isShowOnlyOpenClasses);
   }, [isShowOnlyOpenClasses]);
 
   useEffect(() => {
-    storage.set('isDefaultUnscheduled', isDefaultUnscheduled);
+    storage.set("isDefaultUnscheduled", isDefaultUnscheduled);
   }, [isDefaultUnscheduled]);
 
   useEffect(() => {
-    storage.set('isHideClassInfo', isHideClassInfo);
+    storage.set("isHideClassInfo", isHideClassInfo);
   }, [isHideClassInfo]);
 
   useEffect(() => {
-    storage.set('isHideExamClasses', isHideExamClasses);
+    storage.set("isHideExamClasses", isHideExamClasses);
   }, [isHideExamClasses]);
 
   useEffect(() => {
-    storage.set('isConvertToLocalTimezone', isConvertToLocalTimezone);
+    storage.set("isConvertToLocalTimezone", isConvertToLocalTimezone);
   }, [isConvertToLocalTimezone]);
 
-  const assignedColors = useColorMapper(selectedCourses.map((course) => course.code));
+  const assignedColors = useColorMapper(
+    selectedCourses.map((course) => course.code)
+  );
   const theme = isDarkMode ? darkTheme : lightTheme; // set theme based on isDarkMode, by default is dark mode
   const globalStyle = {
     body: {
       background: theme.palette.background.default,
-      transition: 'background 0.2s',
+      transition: "background 0.2s",
     },
-    '::-webkit-scrollbar': {
-      width: '10px',
-      height: '10px',
+    "::-webkit-scrollbar": {
+      width: "10px",
+      height: "10px",
     },
-    '::-webkit-scrollbar-track': {
+    "::-webkit-scrollbar-track": {
       background: theme.palette.background.default,
-      borderRadius: '5px',
+      borderRadius: "5px",
     },
-    '::-webkit-scrollbar-thumb': {
+    "::-webkit-scrollbar-thumb": {
       background: theme.palette.secondary.main,
-      borderRadius: '5px',
+      borderRadius: "5px",
       opacity: 0.5,
-      transition: 'background 0.2s',
+      transition: "background 0.2s",
     },
-    '::-webkit-scrollbar-thumb:hover': {
+    "::-webkit-scrollbar-thumb:hover": {
       background: theme.palette.secondary.dark,
     },
   };
@@ -484,11 +538,39 @@ const App: React.FC = () => {
                   handleSelectCourse={handleSelectCourse}
                   handleRemoveCourse={handleRemoveCourse}
                 />
-                <Timetable assignedColors={assignedColors} handleSelectClass={handleSelectClass} />
-                <ICSButton onClick={() => downloadIcsFile(selectedCourses, createdEvents, selectedClasses, firstDayOfTerm)}>
+
+                {/* Hello, modifying here! start*/}
+                <div ref = {myRef}>
+                <Timetable
+                  assignedColors={assignedColors}
+                  handleSelectClass={handleSelectClass}
+                />
+                </div>
+                {/* Hello, modifying here! end*/}
+
+                {/* OLD CODE! */}
+                {/* <Timetable
+                  assignedColors={assignedColors}
+                  handleSelectClass={handleSelectClass}
+                /> */}
+
+                {/* todo here! Add all the button stuff here! @shankar-shiv */}
+                {/* Pass in the myRef prop down to children */}
+                <SaveTimetableOptions customRef = {myRef} />
+                
+                <ICSButton
+                  onClick={() =>
+                    downloadIcsFile(
+                      selectedCourses,
+                      createdEvents,
+                      selectedClasses,
+                      firstDayOfTerm
+                    )
+                  }
+                >
                   save to calendar
                 </ICSButton>
-                {/* Add other buttons here! */}
+
                 <Footer />
                 <Alerts />
               </Content>
