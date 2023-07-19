@@ -387,7 +387,7 @@ const TimetableTabContextMenu: React.FC<TimetableTabContextMenuProps> = ({ ancho
           </Button>
         </StyledDialogButtons>
       </Dialog>
-      {/* Restore deleted timetable Alert */}
+      
       <StyledSnackbar
         open={openRestoreAlert}
         autoHideDuration={5000}

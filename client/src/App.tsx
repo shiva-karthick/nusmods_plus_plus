@@ -295,8 +295,14 @@ const App: React.FC = () => {
             (x) => x.code === addedCourse.code
           );
           newSelectedCourses[index] = addedCourse;
+          if (!courseData.map.find((i) => i.code === addedCourse.code)) {
+            newCourseData.map.push(addedCourse);
+          }
         } else {
           newSelectedCourses.push(addedCourse);
+          if (!courseData.map.find((i) => i.code === addedCourse.code)) {
+            newCourseData.map.push(addedCourse);
+          }
         }
         if (!courseData.map.find((i) => i.code === addedCourse.code)) {
           newCourseData.map.push(addedCourse);
