@@ -41,3 +41,12 @@ The URLs are constructed using the `LOCAL` and `LIVE` constants based on the env
 
 * In summary, this code provides a way to configure different API URLs for different environments in a University Timetable application using React and Flask. It allows the application to connect to the appropriate backend server based on the current environment.
 */
+
+export const firebaseConfig = { // Your web app's Firebase configuration
+  apiKey: "AIzaSyCYLMhV4WkEPvBzucv8a-W7_FP5thQjKig",
+  authDomain: "numods-plus-plus.firebaseapp.com",
+  projectId: "numods-plus-plus",
+  storageBucket: "numods-plus-plus.appspot.com",
+  messagingSenderId: "89209942466",
+  appId: "1:89209942466:web:f1595f0c96148aff24a65b"
+};

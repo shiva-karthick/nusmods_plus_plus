@@ -7,7 +7,7 @@ import {
   ThemeProvider,
 } from "@mui/material";
 import { styled } from "@mui/system";
-import { LocalizationProvider } from "@mui/x-date-pickers";
+import { LocalizationProvider, StaticDatePicker } from "@mui/x-date-pickers";
 import { AdapterDateFns } from "@mui/x-date-pickers/AdapterDateFns";
 import * as Sentry from "@sentry/react";
 import getCourseInfo from "./api/getCourseInfo";
@@ -16,7 +16,7 @@ import Alerts from "./components/Alerts";
 import Controls from "./components/controls/Controls";
 import Footer from "./components/Footer";
 import Navbar from "./components/navbar/Navbar";
-import { TimetableTabs } from './components/timetableTabs/TimetableTabs';
+import { TimetableTabs } from "./components/timetableTabs/TimetableTabs";
 import Timetable from "./components/timetable/Timetable";
 import { contentPadding, darkTheme, lightTheme } from "./constants/theme";
 import {
@@ -45,7 +45,14 @@ import { downloadIcsFile } from "./utils/generateICS";
 import storage from "./utils/storage";
 import { SaveTimetableOptions } from "./components/SaveTimetableOptions";
 
+// Firebase code
+// Import the functions you need from the SDKs you need
+import { initializeApp } from "firebase/app";
+import {firebaseConfig} from "./api/config";
+import { getFirestore, collection, onSnapshot } from "firebase/firestore";
 
+// import firebase auth
+import { getAuth} from "firebase/auth";
 
 const StyledApp = styled(Box)`
   height: 100%;
@@ -88,11 +95,17 @@ const ICSButton = styled(Button)`
 `;
 
 const App: React.FC = () => {
-
   // some testing
-  const myRef = useRef<HTMLDivElement>(null)
+  const myRef = useRef<HTMLDivElement>(null);
   // passed down to SaveTimetableOptions.tsx
   // some testing
+
+  // Firebase stuff
+  const firebaseApp = initializeApp(firebaseConfig);
+  const auth = getAuth(firebaseApp)
+  const firebase = getFirestore(firebaseApp);
+
+  console.log(auth.currentUser);
 
   const {
     is12HourMode,
@@ -359,19 +372,28 @@ const App: React.FC = () => {
    */
   const updateTimetableEvents = () => {
     handleSelectCourse(
-      storage.get('timetables')[selectedTimetable].selectedCourses.map((course: CourseData) => course.code),
+      storage
+        .get("timetables")
+        [selectedTimetable].selectedCourses.map(
+          (course: CourseData) => course.code
+        ),
       true,
       (newSelectedCourses) => {
-        const timetableSelectedClasses: SelectedClasses = storage.get('timetables')[selectedTimetable].selectedClasses;
+        const timetableSelectedClasses: SelectedClasses =
+          storage.get("timetables")[selectedTimetable].selectedClasses;
 
         const savedClasses: SavedClasses = {};
 
         Object.keys(timetableSelectedClasses).forEach((courseCode) => {
           savedClasses[courseCode] = {};
-          Object.keys(timetableSelectedClasses[courseCode]).forEach((activity) => {
-            const classData = timetableSelectedClasses[courseCode][activity];
-            savedClasses[courseCode][activity] = classData ? classData.section : null;
-          });
+          Object.keys(timetableSelectedClasses[courseCode]).forEach(
+            (activity) => {
+              const classData = timetableSelectedClasses[courseCode][activity];
+              savedClasses[courseCode][activity] = classData
+                ? classData.section
+                : null;
+            }
+          );
         });
 
         const newSelectedClasses: SelectedClasses = {};
@@ -401,7 +423,9 @@ const App: React.FC = () => {
         setSelectedClasses(newSelectedClasses);
       }
     );
-    setCreatedEvents(storage.get('timetables')[selectedTimetable].createdEvents);
+    setCreatedEvents(
+      storage.get("timetables")[selectedTimetable].createdEvents
+    );
   };
 
   useEffect(() => {
@@ -412,26 +436,26 @@ const App: React.FC = () => {
   useUpdateEffect(() => {
     displayTimetables[selectedTimetable].selectedCourses = selectedCourses;
     let newCourseData = courseData;
-    storage.set('courseData', newCourseData);
-    storage.set('timetables', displayTimetables);
+    storage.set("courseData", newCourseData);
+    storage.set("timetables", displayTimetables);
     setDisplayTimetables(displayTimetables);
   }, [selectedCourses]);
 
   useUpdateEffect(() => {
     displayTimetables[selectedTimetable].selectedClasses = selectedClasses;
-    storage.set('timetables', displayTimetables);
+    storage.set("timetables", displayTimetables);
     setDisplayTimetables(displayTimetables);
   }, [selectedClasses]);
 
   useUpdateEffect(() => {
     displayTimetables[selectedTimetable].createdEvents = createdEvents;
-    storage.set('timetables', displayTimetables);
+    storage.set("timetables", displayTimetables);
     setDisplayTimetables(displayTimetables);
   }, [createdEvents]);
 
   // Update storage when dragging timetables
   useUpdateEffect(() => {
-    storage.set('timetables', displayTimetables);
+    storage.set("timetables", displayTimetables);
   }, [displayTimetables]);
 
   /**
@@ -589,11 +613,11 @@ const App: React.FC = () => {
                 <TimetableTabs />
 
                 {/* Hello, modifying here! start*/}
-                <div ref = {myRef}>
-                <Timetable
-                  assignedColors={assignedColors}
-                  handleSelectClass={handleSelectClass}
-                />
+                <div ref={myRef}>
+                  <Timetable
+                    assignedColors={assignedColors}
+                    handleSelectClass={handleSelectClass}
+                  />
                 </div>
                 {/* Hello, modifying here! end*/}
 
@@ -605,8 +629,8 @@ const App: React.FC = () => {
 
                 {/* todo here! Add all the button stuff here! @shankar-shiv */}
                 {/* Pass in the myRef prop down to children */}
-                <SaveTimetableOptions customRef = {myRef} />
-                
+                <SaveTimetableOptions customRef={myRef} />
+
                 <ICSButton
                   onClick={() =>
                     downloadIcsFile(

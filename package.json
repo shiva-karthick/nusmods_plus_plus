@@ -1,5 +1,6 @@
 {
   "dependencies": {
+    "firebase": "^10.1.0",
     "html-to-image": "^1.11.11"
   }
 }

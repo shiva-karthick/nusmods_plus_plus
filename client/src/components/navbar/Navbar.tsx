@@ -28,10 +28,11 @@ import Settings from "./Settings";
 
 import Button from "@mui/material/Button";
 import LogoutIcon from "@mui/icons-material/Logout";
+import SaveIcon from "@mui/icons-material/Save";
 import AddIcon from "@mui/icons-material/Add";
 import Friends from "@mui/icons-material/People";
 import User from "@mui/icons-material/AccountCircle";
-import Stack from "@mui/material/Stack";
+import { useNavigate } from "react-router-dom";
 
 const LogoImg = styled("img")`
   height: 46px;
@@ -74,6 +75,11 @@ const Navbar: React.FC = () => {
   const theme = useTheme<ThemeType>();
   const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
 
+  let navigate = useNavigate(); 
+  const logout = () =>{  
+    navigate("/login");
+  }
+
   return (
     <NavbarBox>
       <StyledNavBar enableColorOnDark position="fixed">
@@ -88,7 +94,14 @@ const Navbar: React.FC = () => {
             <Weak>{isMobile ? term : termName.concat(", ", year)}</Weak>
           </NavbarTitle>
 
-          <Stack direction="row" spacing={1}>
+          <div
+            style={{
+              display: "flex",
+              flexWrap: "wrap",
+              gap: "1em",
+              justifyContent: "flex-end",
+            }}
+          >
             <Button
               variant="contained"
               style={{ backgroundColor: "#EF7B00", color: "white" }}
@@ -118,13 +131,22 @@ const Navbar: React.FC = () => {
 
             <Button
               variant="contained"
+              style={{ backgroundColor: "orange", color: "white" }}
+              startIcon={<SaveIcon />}
+              onClick={() => alert("Save Clicked!")}
+            >
+              Save
+            </Button>
+
+            <Button
+              variant="contained"
               style={{ backgroundColor: "#f44336", color: "white" }}
               startIcon={<LogoutIcon />}
-              onClick={() => alert("Logout Button Clicked")}
+              onClick={logout}
             >
               Logout
             </Button>
-          </Stack>
+          </div>
 
           <CustomModal
             title="About"

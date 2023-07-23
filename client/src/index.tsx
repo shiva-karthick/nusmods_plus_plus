@@ -4,6 +4,7 @@ import { BrowserTracing } from '@sentry/tracing';
 import { createRoot } from 'react-dom/client';
 import { BrowserRouter, Route, Routes } from 'react-router-dom';
 import App from './App';
+import {Login} from './Login';
 import AppContextProvider from './context/AppContext';
 import CourseContextProvider from './context/CourseContext';
 import './index.css';
@@ -26,7 +27,8 @@ const Root: React.FC = () => (
     <CourseContextProvider>
       <BrowserRouter>
         <Routes>
-          <Route element={<App />} path="/" />
+          <Route element={<App />} path="/home" />
+          <Route element={<Login />} path="/login" />
         </Routes>
       </BrowserRouter>
     </CourseContextProvider>
