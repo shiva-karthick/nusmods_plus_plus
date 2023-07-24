@@ -110,8 +110,6 @@ const LoginTitle = styled(Typography)`
   font-weight: bold;
 `;
 
-
-
 export const Login: React.FC = () => {
   const [currLogo, setCurrLogo] = useState(notanglesLogo);
   const [username, setUsername] = useState("");
@@ -184,12 +182,12 @@ export const Login: React.FC = () => {
         <LoginTitle variant="h6">Register / Login to NUSMODS++</LoginTitle>
         <p>
           {" "}
-          If this is your first time, logging in, you will be automatically
-          registered
+          Login Anonymously
         </p>
+
         <br></br>
 
-        {!userNameTaken ? (
+        {/* {!userNameTaken ? (
           <TextField
             id="username"
             label="Enter Username"
@@ -223,9 +221,9 @@ export const Login: React.FC = () => {
               setUsername(event.target.value);
             }}
           />
-        )}
+        )} */}
 
-        <FormControl sx={{ m: 1, width: "25ch" }} variant="outlined">
+        {/* <FormControl sx={{ m: 1, width: "25ch" }} variant="outlined">
           <InputLabel htmlFor="outlined-adornment-password">
             Password
           </InputLabel>
@@ -250,7 +248,7 @@ export const Login: React.FC = () => {
             }}
             value={password}
           />
-        </FormControl>
+        </FormControl> */}
         <Button
           variant="contained"
           endIcon={<SendIcon />}
@@ -258,7 +256,7 @@ export const Login: React.FC = () => {
           size="large"
           onClick={handleSubmit}
         >
-          Submit
+          Enter
         </Button>
       </Grid>
     </Box>

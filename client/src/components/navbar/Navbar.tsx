@@ -75,10 +75,10 @@ const Navbar: React.FC = () => {
   const theme = useTheme<ThemeType>();
   const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
 
-  let navigate = useNavigate(); 
-  const logout = () =>{  
+  let navigate = useNavigate();
+  const logout = () => {
     navigate("/");
-  }
+  };
 
   return (
     <NavbarBox>
@@ -102,20 +102,11 @@ const Navbar: React.FC = () => {
               justifyContent: "flex-end",
             }}
           >
-            <Button
-              variant="contained"
-              style={{ backgroundColor: "#EF7B00", color: "white" }}
-              startIcon={<User />}
-              onClick={() => alert("Username Button Clicked")}
-            >
-              Username
-            </Button>
-
-            <Button
+            {/* <Button
               variant="contained"
               style={{ backgroundColor: "#3f51b5", color: "white" }}
               startIcon={<Friends />}
-              onClick={() => alert("Friends Button Clicked")}
+              // onClick={() => alert("Friends Button Clicked")}
             >
               Friends
             </Button>
@@ -124,19 +115,10 @@ const Navbar: React.FC = () => {
               variant="contained"
               style={{ backgroundColor: "#4caf50", color: "white" }}
               startIcon={<AddIcon />}
-              onClick={() => alert("Add Friends Button Clicked")}
+              // onClick={() => alert("Add Friends Button Clicked")}
             >
               Add Friends
-            </Button>
-
-            <Button
-              variant="contained"
-              style={{ backgroundColor: "orange", color: "white" }}
-              startIcon={<SaveIcon />}
-              onClick={() => alert("Save Clicked!")}
-            >
-              Save
-            </Button>
+            </Button> */}
 
             <Button
               variant="contained"
