@@ -179,10 +179,11 @@ export const Login: React.FC = () => {
           onMouseOver={() => setCurrLogo(notanglesLogoGif)}
           onMouseOut={() => setCurrLogo(notanglesLogo)}
         />
-        <LoginTitle variant="h6">Register / Login to NUSMODS++</LoginTitle>
+        <LoginTitle variant="h6">Welcome to NUSMODS++</LoginTitle>
+
         <p>
           {" "}
-          Login Anonymously
+          Developed and Maintained by Shiva, Year 4 Electrical Engineering, NUS
         </p>
 
         <br></br>
