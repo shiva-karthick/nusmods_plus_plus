@@ -4,8 +4,8 @@
   "display": "standalone",
   "scope": "/",
   "start_url": "/",
-  "name": "Notangles Trimester Timetabler",
-  "short_name": "Notangles",
+  "name": "nusmods++ Timetabler",
+  "short_name": "nusmods++",
   "description": "Trimester timetabler tool for UNSW students - no more timetable tangles \ud83e\uddf6",
   "icons": [
     {

@@ -70,29 +70,6 @@ const About: React.FC = () => {
       <FeatList>
         <li>Shiva, Year 3 Electrical Engineering, NUS</li>
       </FeatList>
-      {/* <Typography gutterBottom variant="body2">
-        <strong>Members:</strong>
-      </Typography> */}
-      {/* <FeatList>
-        <li>Eklavya Joshi</li>
-        <li>Jasmine Tran</li>
-        <li>Michael Siu</li>
-        <li>Sally Sun</li>
-        <li>Shaam Jevan</li>
-        <li>Sijin Soon</li>
-        <li>Wanning Cai</li>
-      </FeatList> */}
-      {/* <StyledTypography variant="h6">Disclaimer</StyledTypography>
-      <Typography gutterBottom variant="body2">
-        While we try our best, nusmods++ is not an official UNSW site, and cannot guarantee data accuracy or reliability.
-      </Typography>
-      <Typography gutterBottom variant="body2">
-        If you find an issue or have a suggestion, please{' '}
-        <Link href="https://forms.gle/rV3QCwjsEbLNyESE6" target="_blank">
-          let us know
-        </Link>
-        .
-      </Typography> */}
     </>
   );
 };

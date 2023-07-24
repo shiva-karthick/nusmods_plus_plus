@@ -102,24 +102,6 @@ const Navbar: React.FC = () => {
               justifyContent: "flex-end",
             }}
           >
-            {/* <Button
-              variant="contained"
-              style={{ backgroundColor: "#3f51b5", color: "white" }}
-              startIcon={<Friends />}
-              // onClick={() => alert("Friends Button Clicked")}
-            >
-              Friends
-            </Button>
-
-            <Button
-              variant="contained"
-              style={{ backgroundColor: "#4caf50", color: "white" }}
-              startIcon={<AddIcon />}
-              // onClick={() => alert("Add Friends Button Clicked")}
-            >
-              Add Friends
-            </Button> */}
-
             <Button
               variant="contained"
               style={{ backgroundColor: "#f44336", color: "white" }}

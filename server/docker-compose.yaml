@@ -1,21 +1,21 @@
 version: "3.7"
 services:
   server:
-    container_name: notangles-server
-    image: notangles-server
+    container_name: nusmods_plus_plus-server
+    image: nusmods_plus_plus-server
     restart: always
     build: .
     depends_on:
-      - database.notangles-db
+      - database.nusmods_plus_plus-db
     ports:
       - "3001:3001"
     links:
-      - database.notangles-db
-  database.notangles-db:
-    container_name: notangles-database
+      - database.nusmods_plus_plus-db
+  database.nusmods_plus_plus-db:
+    container_name: nusmods_plus_plus-database
     restart: always
     image: mongo:6.0
     ports:
       - "27017:27017"
     volumes:
-      - ~/var/lib/notangles/data:/data/db
+      - ~/var/lib/nusmods_plus_plus/data:/data/db

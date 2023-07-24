@@ -1,6 +1,6 @@
-# Notangles Autotimetabler
+# Autotimetabler
 
-The Notangles autotimetabler returns a possible timetable that matches the user's provided requirements.
+The autotimetabler returns a possible timetable that matches the user's provided requirements.
 
 ## Installation
 
@@ -27,7 +27,7 @@ The real values of these environment variables are only required when the app is
 
 ## Tech Stack
 
-The Notangles autotimetabler uses:
+The autotimetabler uses:
 
 - [Google OR-Tools](https://developers.google.com/optimization)
 - [gRPC](https://grpc.io/)
@@ -35,4 +35,4 @@ The Notangles autotimetabler uses:
 ## Logic
 
 - The autotimetabler uses Google OR-Tools' set of constraint programming algorithms to generate a possible arrangement of classes based on the user's provided constraints.
-- It then returns this result to the Notangles server using gRPC (Remote Procedure Calls)
+- It then returns this result to the server using gRPC (Remote Procedure Calls)
