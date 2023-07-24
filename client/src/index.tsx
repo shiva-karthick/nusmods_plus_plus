@@ -28,7 +28,7 @@ const Root: React.FC = () => (
       <BrowserRouter>
         <Routes>
           <Route element={<App />} path="/home" />
-          <Route element={<Login />} path="/login" />
+          <Route element={<Login />} path="/" />
         </Routes>
       </BrowserRouter>
     </CourseContextProvider>
